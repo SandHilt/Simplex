@@ -38,7 +38,7 @@ class Simplex:
         # Primeiro vamos concatena-la
         self.rows.append([sinal] + expressao)
         self.cons.append(valor)
-        self.base += [0]
+        # self.base += [0]
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
@@ -119,11 +119,11 @@ class Simplex:
     def mostrar_situacao(self):
         tipo = 'max' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX else 'min'
 
-        print '\n', tipo, self.obj[1:]
+        print '\n', tipo, '\t', self.obj[1:]
         # print self.__formatar_saida(self.obj[1:], tipo)
 
         for row in self.rows:
-            print row[1:]
+            print '\t', row[1:]
             # print self.__formatar_saida(row[1:])
 
         # print self.__formatar_saida(self.obj[1:], final=True)
@@ -163,7 +163,7 @@ class Simplex:
                 print '\nproblema inviavel'
             else:
                 print '\nEsse que sai'
-                print 'x' + `sai_base` + '\n'
+                print 'x' + `self.base[sai_base]` + '\n'
 
             return entra_base, sai_base
         # Caso nao haja ninguem para entrar na base,
@@ -171,31 +171,38 @@ class Simplex:
         else:
             print 'ja esta na solucao otima'
 
+    # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self):
         criterio_parada = len([a for a in self.obj[1:] if a<0])
 
         while criterio_parada != 0:
             entra_base, sai_base = self.__pivo()
-            print entra_base, sai_base
+
+            pivo = self.rows[sai_base][entra_base]
+            print pivo
+
             criterio_parada -= 1
 
     def resolver(self):
-        print '\nAntes de comecar'
+        print '\n1)Antes de comecar'
         self.mostrar_situacao()
 
-        print '\nMudando a funcao objetivo'
+        print '\n2)Mudando a funcao objetivo'
         self.__tipo_funcao_objetivo()
         self.mostrar_situacao()
 
-        print '\nMudando as restricoes para a forma padrao'
+        print '\n3)Mudando as restricoes para a forma padrao'
         self.__tipo_restricoes()
         self.mostrar_situacao()
 
-        print '\nUnindo com o resultado'
+        print '\n4)Unindo com o resultado'
         self.__unir_com_rhs()
         self.mostrar_situacao()
 
-        print '\nProcurando o pivo'
+        print '\n5)Base inicial'
+        print self.base
+
+        print '\n6)Procurando o pivo'
         self.__escalonamento()
 
 if __name__ == '__main__':
