@@ -81,6 +81,7 @@ class Simplex:
         for i in range(len(self.rows)):
             self.rows[i] += [self.cons[i]]
 
+    # Coloca a saida como um modo convencional de ver
     def __formatar_saida(self, arr, tipo=None):
         saida = '\t'
 
