@@ -133,9 +133,11 @@ class Simplex:
         # Variavel flag
         menor = float('Infinity')
 
+        objetivo = self.obj.tolist()
+
         # Encontra o indice da coluna com o valor mais negativo
         # na funcao objetivo  para saber quem entra na base
-        entra_base = self.obj.index(min(self.obj[1:]))
+        entra_base = objetivo.index(min(objetivo[1:]))
 
         # Index inicial para escolher quem sai da base
         sai_base = -1
@@ -150,7 +152,7 @@ class Simplex:
                 if restricao[entra_base] != 0:
                     # Divisao entre o resultado da restricao
                     # e a vitima para ser o pivo
-                    razao = restricao[-1] / restricao[entra_base]
+                    razao = restricao[-1] / float(restricao[entra_base])
 
                     # Elimina numeros negativos da escolha do pivo
                     if razao < 0:
@@ -175,11 +177,34 @@ class Simplex:
     def __escalonamento(self):
         criterio_parada = len([a for a in self.obj[1:] if a<0])
 
+        # Alterando array para ndarray
+        self.obj = np.array(self.obj, dtype=float)
+        for restricao in self.rows:
+            restricao = np.array(restricao, dtype=float)
+
         while criterio_parada != 0:
             entra_base, sai_base = self.__pivo()
 
-            pivo = self.rows[sai_base][entra_base]
-            print pivo
+            # O pivo esta aqui
+            pivo = float(self.rows[sai_base][entra_base])
+
+            print 'O pivo dessa interacao eh: ', pivo
+
+            # Agora vamos dividir a linha toda pelo proprio pivo
+            self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
+
+            self.mostrar_situacao()
+
+
+            print 'Vamos zerar a coluna do pivo'
+            # Agora precisamos zerar a coluna do pivo nas restricoes
+            # e depois na funcao objetivo
+            for i in range(len(self.rows)):
+                item = self.rows[i]
+                if i != sai_base:
+                    self.rows[i] += np.dot(self.rows[sai_base], -item[entra_base])
+
+            self.base[sai_base] = entra_base
 
             criterio_parada -= 1
 
