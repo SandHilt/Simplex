@@ -35,20 +35,22 @@ class Simplex:
         self.cons.append( valor )
         self.base = np.zeros(len(self.base) + 1)
         
-    # Muda toda funcao de MAX para MIN
+    # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
         if(self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX):
             self.obj = np.dot(self.obj, -1)
             self.obj[self.__TIPO_RESTRICAO] = Tipo.MIN
 
-    # Muda toda restricao de MENOR_IGUAL ou MAIOR_IGUAL para IGUAL
+    # Transforma as desiguadades em igualdades
     def __tipo_restricoes(self):
         for restricao in self.rows:
+            
             # No caso se for menor ou igual
             if(restricao[self.__TIPO_RESTRICAO] == Sinal.MENOR_IGUAL):
                 self.__folga += 1
 
                 self.obj += [0]
+                
                 for res in self.rows:
                     res += [0]
                 restricao[len(restricao)-1] = 1
@@ -58,12 +60,23 @@ class Simplex:
         for i in range(len(self.rows)):
             self.rows[i] += [self.cons[i]]
 
-    # Mostra a situacao atual da matrix
+    # Mostra a situacao atual da matriz
     def mostrar_situacao(self):
         tipo = 'max' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX else 'min'
         print '\n', tipo, self.obj[1:]
         for row in self.rows:
             print row[1:]
+            
+    def _pivo(self, obj, valor):
+        menor = float(9999999999999999.9999) #variavel flag
+        col_pivo=obj.index(min(obj)) #encontra o indice da coluna com o valor mais negativo na função objetivo
+        for restricao in self.rows:
+            if (self.rows[col_pivo] <= 0): #exclui divisões por zero ou números negativos da escolha do pivo
+                continue
+            if (float(valor/self.rows[col_pivo]) < menor):
+                menor = float(valor/self.rows[col_pivo]) #guarda o menor valor da divisão entre valor e o elemento na coluna pivo
+                pivo = self.rows[col_pivo] #define o elemento pivô
+                       
 
     def resolver(self):
 
@@ -81,6 +94,7 @@ class Simplex:
         print '\nUnindo com o resultado'
         self.__unir_com_rhs()        
         self.mostrar_situacao()
+        
 
 if __name__ == '__main__':
 
