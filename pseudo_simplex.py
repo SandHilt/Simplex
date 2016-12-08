@@ -129,27 +129,23 @@ class Simplex:
         # print self.__formatar_saida(self.obj[1:], final=True)
 
     # Procura pelo pivo
-    def _pivo(self):
+    def __pivo(self):
         # Variavel flag
         menor = float('Infinity')
-
-        print '\n\nEsse aqui eh a funcao objetivo' + `self.obj[1:]`
 
         # Encontra o indice da coluna com o valor mais negativo
         # na funcao objetivo  para saber quem entra na base
         entra_base = self.obj.index(min(self.obj[1:]))
 
+        # Index inicial para escolher quem sai da base
         sai_base = -1
 
         # O valor precisa ser negativo
         if self.obj[entra_base] < 0:
             # Vamos procurar quem sai da base
             print '\nEsse que entra'
-            print 'x' + `entra_base` + '\n'
+            print 'x' + `entra_base`
             for index, restricao in enumerate(self.rows):
-                print 'rhs', restricao[-1]
-                print 'entra_base', restricao[entra_base]
-
                 # Exclui divisoes por zero
                 if restricao[entra_base] != 0:
                     # Divisao entre o resultado da restricao
@@ -168,15 +164,20 @@ class Simplex:
             else:
                 print '\nEsse que sai'
                 print 'x' + `sai_base` + '\n'
-            #     if (float(valor/self.rows[entra_base]) < menor):
-            #         # Guarda o menor valor da divisao entre valor e o elemento na coluna pivo
-            #         menor = float(valor/self.rows[entra_base])
-            #         # Define o elemento pivo
-            #         pivo = self.rows[entra_base]
+
+            return entra_base, sai_base
         # Caso nao haja ninguem para entrar na base,
         # entao estamos na solucao otima
         else:
             print 'ja esta na solucao otima'
+
+    def __escalonamento(self):
+        criterio_parada = len([a for a in self.obj[1:] if a<0])
+
+        while criterio_parada != 0:
+            entra_base, sai_base = self.__pivo()
+            print entra_base, sai_base
+            criterio_parada -= 1
 
     def resolver(self):
         print '\nAntes de comecar'
@@ -194,7 +195,8 @@ class Simplex:
         self.__unir_com_rhs()
         self.mostrar_situacao()
 
-        self._pivo()
+        print '\nProcurando o pivo'
+        self.__escalonamento()
 
 if __name__ == '__main__':
 
