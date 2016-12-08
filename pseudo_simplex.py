@@ -5,20 +5,20 @@ class Sinal:
     MAIOR_IGUAL = 1
     IGUAL = 0
     MENOR_IGUAL = -1
-    
+
 class Tipo:
     MAX = 1
     MIN = 0
 
 class Simplex:
-    # Localizacao no array do tipo de restricao
+    # Localizacao no array do tipo de restricao e o tipo de otimizacao
     __TIPO_RESTRICAO = 0
 
     def __init__(self, tipo_fo, obj):
         # Funcao objetivo
         self.obj = [tipo_fo] + obj
 
-        # Colunas
+        # Colunas / Restricoes
         self.rows = []
         # Restricoes
         self.cons = []
@@ -26,60 +26,137 @@ class Simplex:
         # Variaveis de folga
         self.__folga = 0
 
+        # Variaveis artificiais
+        self.__art = 0
+
+        self.__obj_art = []
+
         self.base = []
 
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
         # Primeiro vamos concatena-la
-        self.rows.append( [sinal] + expressao )
-        self.cons.append( valor )
+        self.rows.append([sinal] + expressao)
+        self.cons.append(valor)
         self.base = np.zeros(len(self.base) + 1)
-        
+
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
         if(self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX):
+            # numpy.dot converte para ndarray
             self.obj = np.dot(self.obj, -1)
+            # voltando a ser um array
+            self.obj = self.obj.tolist()
             self.obj[self.__TIPO_RESTRICAO] = Tipo.MIN
 
     # Transforma as desiguadades em igualdades
     def __tipo_restricoes(self):
         for restricao in self.rows:
-            
-            # No caso se for menor ou igual
+            # No caso de for menor ou igual, ou seja, uma fase
             if(restricao[self.__TIPO_RESTRICAO] == Sinal.MENOR_IGUAL):
                 self.__folga += 1
 
                 self.obj += [0]
-                
+
                 for res in self.rows:
                     res += [0]
                 restricao[len(restricao)-1] = 1
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
-    
+            # No caso de for maior ou igual, ou seja, de duas fases
+            elif(restricao[self.__TIPO_RESTRICAO] == Sinal.MAIOR_IGUAL):
+                self.__folga += 1
+                self.__art += 1
+
+                self.obj += [0, 0]
+
+                for res in self.rows:
+                    res += [0, 0]
+                restricao[len(restricao)-2] = -1
+                restricao[len(restricao)-1] = 1
+                restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+                self.__obj_art = np.zeros(len(self.__obj_art) + 1)
+
+    # Unindo a todas as restricoes os seus respectivos resultados
     def __unir_com_rhs(self):
         for i in range(len(self.rows)):
             self.rows[i] += [self.cons[i]]
 
+    def __formatar_saida(self, arr, tipo=None):
+        saida = '\t'
+
+        if(tipo != None):
+            saida = tipo + '\t'
+
+        for index, coeficiente in enumerate(arr):
+            cf = '' + `coeficiente`
+            if coeficiente >= 0 and index != 0:
+                cf = '+' + cf
+            saida += cf + 'x_' + `index + 1`
+
+        return saida
+
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self):
         tipo = 'max' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX else 'min'
+
         print '\n', tipo, self.obj[1:]
+        # print self.__formatar_saida(self.obj[1:], tipo)
+
         for row in self.rows:
             print row[1:]
-            
-    def _pivo(self, obj, valor):
-        menor = float(9999999999999999.9999) #variavel flag
-        col_pivo=obj.index(min(obj)) #encontra o indice da coluna com o valor mais negativo na função objetivo
-        for restricao in self.rows:
-            if (self.rows[col_pivo] <= 0): #exclui divisões por zero ou números negativos da escolha do pivo
-                continue
-            if (float(valor/self.rows[col_pivo]) < menor):
-                menor = float(valor/self.rows[col_pivo]) #guarda o menor valor da divisão entre valor e o elemento na coluna pivo
-                pivo = self.rows[col_pivo] #define o elemento pivô
-                       
+            # print self.__formatar_saida(row[1:])
+
+    # Procura pelo pivo
+    def _pivo(self):
+        # Variavel flag
+        menor = float('Infinity')
+
+        print '\n\nEsse aqui eh a funcao objetivo' + `self.obj[1:]`
+
+        # Encontra o indice da coluna com o valor mais negativo
+        # na funcao objetivo  para saber quem entra na base
+        entra_base = self.obj.index(min(self.obj[1:]))
+
+        sai_base = -1
+
+        # O valor precisa ser negativo
+        if self.obj[entra_base] < 0:
+            # Vamos procurar quem sai da base
+            print '\nEsse que entra'
+            print 'x' + `entra_base` + '\n'
+            for index, restricao in enumerate(self.rows):
+                print 'rhs', restricao[-1]
+                print 'entra_base', restricao[entra_base]
+
+                # Exclui divisoes por zero
+                if restricao[entra_base] != 0:
+                    # Divisao entre o resultado da restricao
+                    # e a vitima para ser o pivo
+                    razao = restricao[-1] / restricao[entra_base]
+
+                    # Elimina numeros negativos da escolha do pivo
+                    if razao < 0:
+                        continue
+                    elif razao < menor:
+                        menor = razao
+                        sai_base = index
+
+            if menor == float('Infinity'):
+                print '\nproblema inviavel'
+            else:
+                print '\nEsse que sai'
+                print 'x' + `sai_base` + '\n'
+            #     if (float(valor/self.rows[entra_base]) < menor):
+            #         # Guarda o menor valor da divisao entre valor e o elemento na coluna pivo
+            #         menor = float(valor/self.rows[entra_base])
+            #         # Define o elemento pivo
+            #         pivo = self.rows[entra_base]
+        # Caso nao haja ninguem para entrar na base,
+        # entao estamos na solucao otima
+        else:
+            print 'ja esta na solucao otima'
 
     def resolver(self):
-
         print '\nAntes de comecar'
         self.mostrar_situacao()
 
@@ -92,9 +169,10 @@ class Simplex:
         self.mostrar_situacao()
 
         print '\nUnindo com o resultado'
-        self.__unir_com_rhs()        
+        self.__unir_com_rhs()
         self.mostrar_situacao()
-        
+
+        self._pivo()
 
 if __name__ == '__main__':
 
@@ -106,8 +184,8 @@ if __name__ == '__main__':
     z          <= 5
     x,y,z >= 0
     """
-    tabela = Simplex(Tipo.MAX, [2,3,2])
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2,1,1], 4)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1,2,1], 7)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0,0,1], 5)
+    tabela = Simplex(Tipo.MAX, [2, 3, 2])
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
     tabela.resolver()
