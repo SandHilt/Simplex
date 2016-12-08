@@ -38,7 +38,6 @@ class Simplex:
         # Primeiro vamos concatena-la
         self.rows.append([sinal] + expressao)
         self.cons.append(valor)
-        # self.base += [0]
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
@@ -91,6 +90,7 @@ class Simplex:
     def __unir_com_rhs(self):
         for i in range(len(self.rows)):
             self.rows[i] += [self.cons[i]]
+        self.obj += [0]
 
     # Coloca a saida como um modo convencional de ver
     def __formatar_saida(self, arr, tipo_otimizacao=None, final=False):
@@ -101,16 +101,21 @@ class Simplex:
                 saida = tipo_otimizacao + '\t'
 
             for index, coeficiente in enumerate(arr):
-                cf = '' + `coeficiente`
+                if tipo_otimizacao != None and index+1 == len(arr):
+                    saida += '=' + `coeficiente`
+                    continue
+                cf = `coeficiente`
+                if coeficiente in (0, 1):
+                    cf = ''
                 if coeficiente >= 0 and index != 0:
                     cf = '+' + cf
-                saida += cf + 'x' + `index + 1`
+                saida += cf + 'x_' + `index + 1`
 
         else:
             for i in range(len(arr)):
                 if i != 0:
                     saida += ','
-                saida += 'x' + `i+1`
+                saida += 'x_' + `i+1`
             saida += '>= 0'
 
         return saida
@@ -135,43 +140,44 @@ class Simplex:
 
         objetivo = self.obj.tolist()
 
+        # Index inicial para escolher quem entra na base
+        entra_base = -1
+
         # Encontra o indice da coluna com o valor mais negativo
         # na funcao objetivo  para saber quem entra na base
-        entra_base = objetivo.index(min(objetivo[1:]))
+        try:
+            entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
+        # Caso nao haja ninguem para entrar na base,
+        # entao estamos na solucao otima
+        except(ValueError):
+            print 'ja esta na solucao otima'
 
         # Index inicial para escolher quem sai da base
         sai_base = -1
 
-        # O valor precisa ser negativo
-        if self.obj[entra_base] < 0:
-            # Vamos procurar quem sai da base
-            print '\nEsse que entra'
-            print 'x' + `entra_base`
-            for index, restricao in enumerate(self.rows):
-                # Exclui divisoes por zero
-                if restricao[entra_base] != 0:
-                    # Divisao entre o resultado da restricao
-                    # e a vitima para ser o pivo
-                    razao = restricao[-1] / float(restricao[entra_base])
+        # Vamos procurar quem sai da base
+        print '\nEsse que entra: x' + `entra_base`
+        for index, restricao in enumerate(self.rows):
+            # Exclui divisoes por zero
+            if restricao[entra_base] != 0:
+                # Divisao entre o resultado da restricao
+                # e a vitima para ser o pivo
+                razao = restricao[-1] / float(restricao[entra_base])
 
-                    # Elimina numeros negativos da escolha do pivo
-                    if razao < 0:
-                        continue
-                    elif razao < menor:
-                        menor = razao
-                        sai_base = index
+                # Elimina numeros negativos da escolha do pivo
+                if razao <= 0:
+                    continue
+                elif razao < menor:
+                    menor = razao
+                    sai_base = index
 
-            if menor == float('Infinity'):
-                print '\nproblema inviavel'
-            else:
-                print '\nEsse que sai'
-                print 'x' + `self.base[sai_base]` + '\n'
-
-            return entra_base, sai_base
-        # Caso nao haja ninguem para entrar na base,
-        # entao estamos na solucao otima
+        if menor == float('Infinity'):
+            print '\nproblema eh inviavel'
+            exit()
         else:
-            print 'ja esta na solucao otima'
+            print 'Esse que sai: x' + `self.base[sai_base]` + '\n'
+
+        return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self):
@@ -188,23 +194,35 @@ class Simplex:
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh: ', pivo
+            print 'O pivo dessa interacao eh: ', pivo, '\n'
 
+            print 'Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-
             self.mostrar_situacao()
 
-
-            print 'Vamos zerar a coluna do pivo'
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
-            for i in range(len(self.rows)):
-                item = self.rows[i]
-                if i != sai_base:
-                    self.rows[i] += np.dot(self.rows[sai_base], -item[entra_base])
+            print '\n\nVamos zerar a coluna do pivo'
 
+            linha_pivo = self.rows[sai_base]
+
+            for i in range(len(self.rows)):
+                restricao = self.rows[i]
+                if i != sai_base:
+                    self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
+                    self.mostrar_situacao()
+
+            # Adicionando a linha pivo na funcao objetivo
+            linha_pivo = linha_pivo[1:]
+            aux_obj = self.obj[1:]
+            aux_obj += np.dot(linha_pivo, -aux_obj[sai_base])
+            self.obj = [0] + aux_obj
+            self.mostrar_situacao()
+
+            # Trocando a base
             self.base[sai_base] = entra_base
+            print self.base
 
             criterio_parada -= 1
 
