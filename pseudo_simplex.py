@@ -38,7 +38,7 @@ class Simplex:
         # Primeiro vamos concatena-la
         self.rows.append([sinal] + expressao)
         self.cons.append(valor)
-        self.base = np.zeros(len(self.base) + 1)
+        self.base += [0]
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
@@ -52,18 +52,29 @@ class Simplex:
     # Transforma as desiguadades em igualdades
     def __tipo_restricoes(self):
         for restricao in self.rows:
+            sinal = restricao[self.__TIPO_RESTRICAO]
+
             # No caso de for menor ou igual, ou seja, uma fase
-            if(restricao[self.__TIPO_RESTRICAO] == Sinal.MENOR_IGUAL):
+            if sinal == Sinal.MENOR_IGUAL or sinal == Sinal.IGUAL:
                 self.__folga += 1
 
                 self.obj += [0]
 
+                # Adicionando zero as restricoes
                 for res in self.rows:
                     res += [0]
+
+                # Adicionando coeficiente a restricao
                 restricao[len(restricao)-1] = 1
-                restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+
+                # Criando uma base inicial
+                self.base.append(len(restricao)-1)
+
+                if sinal == Sinal.MENOR_IGUAL:
+                    restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+
             # No caso de for maior ou igual, ou seja, de duas fases
-            elif(restricao[self.__TIPO_RESTRICAO] == Sinal.MAIOR_IGUAL):
+            elif sinal == Sinal.MAIOR_IGUAL:
                 self.__folga += 1
                 self.__art += 1
 
@@ -82,17 +93,25 @@ class Simplex:
             self.rows[i] += [self.cons[i]]
 
     # Coloca a saida como um modo convencional de ver
-    def __formatar_saida(self, arr, tipo=None):
+    def __formatar_saida(self, arr, tipo_otimizacao=None, final=False):
         saida = '\t'
 
-        if(tipo != None):
-            saida = tipo + '\t'
+        if final == False:
+            if tipo_otimizacao != None:
+                saida = tipo_otimizacao + '\t'
 
-        for index, coeficiente in enumerate(arr):
-            cf = '' + `coeficiente`
-            if coeficiente >= 0 and index != 0:
-                cf = '+' + cf
-            saida += cf + 'x_' + `index + 1`
+            for index, coeficiente in enumerate(arr):
+                cf = '' + `coeficiente`
+                if coeficiente >= 0 and index != 0:
+                    cf = '+' + cf
+                saida += cf + 'x' + `index + 1`
+
+        else:
+            for i in range(len(arr)):
+                if i != 0:
+                    saida += ','
+                saida += 'x' + `i+1`
+            saida += '>= 0'
 
         return saida
 
@@ -106,6 +125,8 @@ class Simplex:
         for row in self.rows:
             print row[1:]
             # print self.__formatar_saida(row[1:])
+
+        # print self.__formatar_saida(self.obj[1:], final=True)
 
     # Procura pelo pivo
     def _pivo(self):
