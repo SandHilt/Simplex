@@ -155,27 +155,28 @@ class Simplex:
         # Index inicial para escolher quem sai da base
         sai_base = -1
 
-        # Vamos procurar quem sai da base
-        print '\nEsse que entra: x' + `entra_base`
-        for index, restricao in enumerate(self.rows):
-            # Exclui divisoes por zero
-            if restricao[entra_base] != 0:
-                # Divisao entre o resultado da restricao
-                # e a vitima para ser o pivo
-                razao = restricao[-1] / float(restricao[entra_base])
+        if entra_base != -1:
+            # Vamos procurar quem sai da base
+            print '\nEsse que entra: x' + `entra_base`
+            for index, restricao in enumerate(self.rows):
+                # Exclui divisoes por zero
+                if restricao[entra_base] != 0:
+                    # Divisao entre o resultado da restricao
+                    # e a vitima para ser o pivo
+                    razao = restricao[-1] / float(restricao[entra_base])
 
-                # Elimina numeros negativos da escolha do pivo
-                if razao <= 0:
-                    continue
-                elif razao < menor:
-                    menor = razao
-                    sai_base = index
+                    # Elimina numeros negativos da escolha do pivo
+                    if razao <= 0:
+                        continue
+                    elif razao < menor:
+                        menor = razao
+                        sai_base = index
 
-        if menor == float('Infinity'):
-            print '\nproblema eh inviavel'
-            exit()
-        else:
-            print 'Esse que sai: x' + `self.base[sai_base]` + '\n'
+            if menor == float('Infinity'):
+                print '\nproblema eh inviavel'
+                exit()
+            else:
+                print 'Esse que sai: x' + `self.base[sai_base]` + '\n'
 
         return entra_base, sai_base
 
