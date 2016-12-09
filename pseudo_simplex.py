@@ -93,7 +93,9 @@ class Simplex:
         self.obj += [0]
 
     # Coloca a saida como um modo convencional de ver
-    def __formatar_saida(self, arr, tipo_otimizacao=None, final=False):
+    # tipo_otimizacao = para saber se os coeficientes sao do tipo MAX ou MIN
+    # final = se
+    def __formatar_saida(self, arr, tipo_otimizacao=None, final=False, rhs=True):
         saida = '\t'
 
         if final == False:
@@ -101,16 +103,16 @@ class Simplex:
                 saida = tipo_otimizacao + '\t'
 
             for index, coeficiente in enumerate(arr):
-                if tipo_otimizacao != None and index+1 == len(arr):
+                # Estou na funcao objetivo e este eh o ultimo coeficiente
+                if tipo_otimizacao != None and index+1 == len(arr) and rhs == True:
                     saida += '=' + `coeficiente`
                     continue
-                cf = `coeficiente`
-                if coeficiente in (0, 1):
+                cf = `round(coeficiente, 3)`
+                if coeficiente == 1:
                     cf = ''
                 if coeficiente >= 0 and index != 0:
                     cf = '+' + cf
                 saida += cf + 'x_' + `index + 1`
-
         else:
             for i in range(len(arr)):
                 if i != 0:
@@ -121,15 +123,15 @@ class Simplex:
         return saida
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self):
-        tipo = 'max' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX else 'min'
+    def mostrar_situacao(self, rhs=True):
+        tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
         print '\n', tipo, '\t', self.obj[1:]
-        # print self.__formatar_saida(self.obj[1:], tipo)
+        # print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
 
         for row in self.rows:
             print '\t', row[1:]
-            # print self.__formatar_saida(row[1:])
+            # print self.__formatar_saida(row[1:], rhs=rhs)
 
         # print self.__formatar_saida(self.obj[1:], final=True)
 
@@ -242,15 +244,15 @@ class Simplex:
 
     def resolver(self):
         print '\n1)Antes de comecar'
-        self.mostrar_situacao()
+        self.mostrar_situacao(False)
 
         print '\n2)Mudando a funcao objetivo'
         self.__tipo_funcao_objetivo()
-        self.mostrar_situacao()
+        self.mostrar_situacao(False)
 
         print '\n3)Mudando as restricoes para a forma padrao'
         self.__tipo_restricoes()
-        self.mostrar_situacao()
+        self.mostrar_situacao(False)
 
         print '\n4)Unindo com o resultado'
         self.__unir_com_rhs()
