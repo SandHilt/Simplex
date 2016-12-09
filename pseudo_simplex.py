@@ -197,8 +197,8 @@ class Simplex:
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh: ', pivo, \
-            ' [linha=' + `sai_base`+', coluna=' + `entra_base`, ']\n'
+            print 'O pivo dessa interacao eh:', pivo, \
+            '[linha=' + `sai_base + 1` + ', coluna=' + `entra_base` + ']\n'
 
             print 'Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
@@ -246,7 +246,7 @@ class Simplex:
         self.__unir_com_rhs()
         self.mostrar_situacao()
 
-        print '\n5)Base inicial'
+        print '\n5)Base atual'
         print self.base
 
         print '\n6)Procurando o pivo'
