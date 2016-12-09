@@ -14,6 +14,9 @@ class Simplex:
     # Localizacao no array do tipo de restricao e o tipo de otimizacao
     __TIPO_RESTRICAO = 0
 
+    # Digitos significativos para usar na precisao das saidas
+    __DIGITOS_SIGNIFICATIVOS = 3
+
     def __init__(self, tipo_fo, obj):
         # Funcao objetivo
         self.obj = [tipo_fo] + obj
@@ -32,6 +35,9 @@ class Simplex:
         self.__obj_art = []
 
         self.base = []
+
+    def arrendondar(self, valor):
+        return round(valor, self.__DIGITOS_SIGNIFICATIVOS)
 
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
@@ -107,7 +113,7 @@ class Simplex:
                 if tipo_otimizacao != None and index+1 == len(arr) and rhs == True:
                     saida += '=' + `coeficiente`
                     continue
-                cf = `round(coeficiente, 3)`
+                cf = `self.arrendondar(coeficiente)`
                 if coeficiente == 1:
                     cf = ''
                 if coeficiente >= 0 and index != 0:
@@ -126,11 +132,11 @@ class Simplex:
     def mostrar_situacao(self, rhs=True):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
-        print '\n', tipo, '\t', self.obj[1:]
+        print '\n', tipo, '\t', np.round(self.obj[1:], 3)
         # print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
 
         for row in self.rows:
-            print '\t', row[1:]
+            print '\t', np.round(row[1:], 3)
             # print self.__formatar_saida(row[1:], rhs=rhs)
 
         # print self.__formatar_saida(self.obj[1:], final=True)
@@ -152,8 +158,8 @@ class Simplex:
         # na funcao objetivo  para saber quem entra na base
         try:
             entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
-            print '\nNa funcao objetivo,\nesse eh o menor numero negativo:', self.obj[entra_base],\
-            '[coluna=' + `entra_base` + ']'
+            print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
+            self.arrendondar(self.obj[entra_base]),'[coluna=' + `entra_base` + ']'
         # Caso nao haja ninguem para entrar na base,
         # entao estamos na solucao otima
         except(ValueError):
@@ -170,9 +176,10 @@ class Simplex:
                 if restricao[entra_base] > 0:
                     # Divisao entre o resultado da restricao
                     # e a vitima para ser o pivo
-                    razao = restricao[-1] / float(restricao[entra_base])
+                    razao = self.arrendondar(restricao[-1] / float(restricao[entra_base]))
                     print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'a razao de', restricao[-1], '/', restricao[entra_base],'=',razao
+                    'a razao de', self.arrendondar(restricao[-1]), '/',\
+                    self.arrendondar(restricao[entra_base]),'=',razao
 
                     # Elimina numeros negativos da escolha do pivo
                     if razao <= 0:
@@ -182,7 +189,8 @@ class Simplex:
                         sai_base = index
                 else:
                     print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'o numero eh nulo ou negativo:', restricao[-1], '/', restricao[entra_base]
+                    'o numero eh nulo ou negativo:', self.arrendondar(restricao[-1]), '/',\
+                    self.arrendondar(restricao[entra_base])
             if menor == float('Infinity'):
                 print '\nproblema eh inviavel'
             else:
