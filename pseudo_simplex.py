@@ -101,7 +101,8 @@ class Simplex:
 
     # Coloca a saida como um modo convencional de ver
     # tipo_otimizacao = para saber se os coeficientes sao do tipo MAX ou MIN
-    # final = se
+    # final = se eh a ultima linha
+    # rhs = se ja tem a restricao acoplada
     def __formatar_saida(self, arr, tipo_otimizacao=None, final=False, rhs=True):
         saida = '\t'
 
@@ -114,7 +115,7 @@ class Simplex:
                 if tipo_otimizacao != None and index+1 == len(arr) and rhs == True:
                     saida += '=' + `coeficiente`
                     continue
-                cf = `self.arrendondar(coeficiente)`
+                cf = `coeficiente`
                 if coeficiente == 1:
                     cf = ''
                 if coeficiente >= 0 and index != 0:
@@ -136,9 +137,9 @@ class Simplex:
             print '\t', self.arrendondar(row[1:])
 
     def saida_2(self, tipo, rhs):
-        print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
+        print self.__formatar_saida(self.arrendondar(self.obj[1:]), tipo, rhs=rhs)
         for row in self.rows:
-            print self.__formatar_saida(row[1:], rhs=rhs)
+            print self.__formatar_saida(self.arrendondar(row[1:]), rhs=rhs)
         print self.__formatar_saida(self.obj[1:], final=True)
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
@@ -155,8 +156,8 @@ class Simplex:
     def mostrar_situacao(self, rhs=True):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
-        self.saida_1(tipo)
-        # self.saida_2(tipo, rhs)
+        # self.saida_1(tipo)
+        self.saida_2(tipo, rhs)
         # self.saida_3(tipo)
 
     # Procura pelo pivo
