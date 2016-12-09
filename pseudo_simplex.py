@@ -150,7 +150,8 @@ class Simplex:
         # na funcao objetivo  para saber quem entra na base
         try:
             entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
-            print '\nNa funcao objetivo, esse eh o menor', self.obj[entra_base]
+            print '\nNa funcao objetivo,\nesse eh o menor numero negativo:', self.obj[entra_base],\
+            '[coluna=' + `entra_base` + ']'
         # Caso nao haja ninguem para entrar na base,
         # entao estamos na solucao otima
         except(ValueError):
