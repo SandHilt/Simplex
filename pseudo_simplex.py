@@ -223,7 +223,11 @@ class Simplex:
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
 
+        contador = 1
         while criterio_parada != 0:
+            print '\n', `contador` + 'a', 'Interacao com pivo'
+            contador += 1
+
             entra_base, sai_base = self.__pivo()
 
             # Significa que nao foi possivel achar um novo pivo
