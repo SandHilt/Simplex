@@ -174,7 +174,6 @@ class Simplex:
 
             if menor == float('Infinity'):
                 print '\nproblema eh inviavel'
-                exit()
             else:
                 print 'Esse que sai: x' + `self.base[sai_base]` + '\n'
 
@@ -192,10 +191,14 @@ class Simplex:
         while criterio_parada != 0:
             entra_base, sai_base = self.__pivo()
 
+            if(entra_base == -1 or sai_base == -1):
+                break
+
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh: ', pivo, '\n'
+            print 'O pivo dessa interacao eh: ', pivo, \
+            ' [linha=' + `sai_base`+', coluna=' + `entra_base`, ']\n'
 
             print 'Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
