@@ -221,14 +221,19 @@ class Simplex:
 
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
+            print '\n','linha_pivo', linha_pivo
             aux_obj = self.obj[1:]
-            aux_obj += np.dot(linha_pivo, -aux_obj[sai_base])
+            print 'aux_obj', aux_obj
+            print 'entra_base', entra_base
+            aux_obj += np.dot(linha_pivo, -aux_obj[entra_base])
+            print 'aux_obj', aux_obj
             self.obj = [0] + aux_obj
             self.mostrar_situacao()
 
             # Trocando a base
             self.base[sai_base] = entra_base
-            print self.base
+
+            print '\nNova base:', self.base
 
             criterio_parada -= 1
 
