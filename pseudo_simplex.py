@@ -291,9 +291,9 @@ class Simplex:
         self.__escalonamento()
 
         print '\n6)Resolucao'
-        print '\nZ=', self.obj[-1]
+        print '\nZ', '=', self.obj[-1]
         for i, res in enumerate(self.rows):
-            print 'x' + `self.base[i]` + "=", res[-1]
+            print 'x' + `self.base[i]`,'=', res[-1]
 
 if __name__ == '__main__':
 
