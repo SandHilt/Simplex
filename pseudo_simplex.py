@@ -225,7 +225,7 @@ class Simplex:
 
         contador = 1
         while criterio_parada != 0:
-            print '\n', `contador` + 'a', 'Interacao com pivo'
+            print '--------','\n', `contador` + 'a', 'Interacao com pivo'
             contador += 1
 
             entra_base, sai_base = self.__pivo()
@@ -247,7 +247,7 @@ class Simplex:
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
-            print '\n\nb)Vamos zerar a coluna do pivo'
+            print '\nb)Vamos zerar a coluna do pivo\n'
 
             linha_pivo = self.rows[sai_base]
 
@@ -255,6 +255,7 @@ class Simplex:
                 restricao = self.rows[i]
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
+                    print 'Somando a restricao', i + 1
                     self.mostrar_situacao()
 
             # Adicionando a linha pivo na funcao objetivo
@@ -262,6 +263,7 @@ class Simplex:
             aux_obj = self.obj[1:]
             aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
             self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
+            print 'Somando a linha do pivo a funcao objetivo'
             self.mostrar_situacao()
 
             # Trocando a base
