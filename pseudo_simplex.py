@@ -183,7 +183,8 @@ class Simplex:
     def __escalonamento(self):
         criterio_parada = len([a for a in self.obj[1:] if a<0])
 
-        # Alterando array para ndarray
+        # Alterando array para ndarray para fazer com que
+        # cada linha seja do tipo float
         self.obj = np.array(self.obj, dtype=float)
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
@@ -191,6 +192,7 @@ class Simplex:
         while criterio_parada != 0:
             entra_base, sai_base = self.__pivo()
 
+            # Significa que nao foi possivel achar um novo pivo
             if(entra_base == -1 or sai_base == -1):
                 break
 
