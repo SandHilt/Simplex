@@ -215,7 +215,7 @@ class Simplex:
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self):
-        criterio_parada = len([a for a in self.obj[1:] if a<0])
+        criterio_parada = len([a for a in self.obj[1:-1] if a<0])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
@@ -263,7 +263,7 @@ class Simplex:
             # Trocando a base
             self.base[sai_base] = entra_base
 
-            criterio_parada -= 1
+            criterio_parada = len([a for a in self.obj[1:-1] if a<0])
 
     def resolver(self):
         print '\n1)Antes de comecar'
