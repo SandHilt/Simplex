@@ -24,14 +24,12 @@ class Simplex:
 
         # Colunas / Restricoes
         self.rows = []
-        # Restricoes
-        self.cons = []
 
         # Variaveis de folga
-        self.__folga = 0
+        self.__folga = []
 
         # Variaveis artificiais
-        self.__art = 0
+        self.__art = []
 
         self.__obj_art = []
 
@@ -43,8 +41,7 @@ class Simplex:
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
         # Primeiro vamos concatena-la
-        self.rows.append([sinal] + expressao)
-        self.cons.append(valor)
+        self.rows.append([sinal] + expressao + [valor])
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
@@ -57,12 +54,23 @@ class Simplex:
 
     # Transforma as desiguadades em igualdades
     def __tipo_restricoes(self):
-        for restricao in self.rows:
+        # Index do numero atual da variavel adicional
+        # Deve ser decrescido -1 pois no inicio tem
+        # o tipo da otimizacao MAX ou MIN e ainda
+        # nao esta concatenado com rhs (valores)
+        numero_variavel = len(self.obj) - 1
+
+        for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
 
+            # Caso tenha numero negativo do lado direito
+            if restricao[-1] < 0:
+                self.rows[idx] = np.dot(restricao, -1).tolist()
+
             # No caso de for menor ou igual, ou seja, uma fase
-            if sinal == Sinal.MENOR_IGUAL or sinal == Sinal.IGUAL:
-                self.__folga += 1
+            if sinal == Sinal.MENOR_IGUAL:
+
+                self.__folga += [numero_variavel]
 
                 self.obj += [0]
 
@@ -92,6 +100,19 @@ class Simplex:
                 restricao[len(restricao)-1] = 1
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
                 self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
+            # Apesar de ser a ultima condicao, por seguranca, testamos
+            elif sinal == Sinal.IGUAL:
+                self.__art += 1
+                self.obj += [0]
+
+                # Adicionando zero as restricoes
+                for row in self.rows:
+                    row += [0]
+
+                # Adicionando coeficiente a restricao
+                restricao[len(restricao)-1] = 1
+
+
 
     # Unindo a todas as restricoes os seus respectivos resultados
     def __unir_com_rhs(self):
@@ -289,3 +310,4 @@ if __name__ == '__main__':
     tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
     tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
     tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    tabela.resolver()
