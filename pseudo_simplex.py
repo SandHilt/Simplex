@@ -91,7 +91,7 @@ class Simplex:
                 restricao[len(restricao)-2] = -1
                 restricao[len(restricao)-1] = 1
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
-                self.__obj_art = np.zeros(len(self.__obj_art) + 1)
+                self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
 
     # Unindo a todas as restricoes os seus respectivos resultados
     def __unir_com_rhs(self):
@@ -270,8 +270,22 @@ if __name__ == '__main__':
     z          <= 5
     x,y,z >= 0
     """
-    tabela = Simplex(Tipo.MAX, [2, 3, 2])
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
-    tabela.resolver()
+    # tabela = Simplex(Tipo.MAX, [2, 3, 2])
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
+    # tabela.resolver()
+
+    """
+    max z = 6x1 - x2
+    st
+    4x1 + x2    <= 21
+    2x1 + 3x2   >= 13
+    x1 - x2      = -1
+    x1,x2 >= 0
+    """
+
+    tabela = Simplex(Tipo.MAX, [6, -1])
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
