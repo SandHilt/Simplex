@@ -144,7 +144,7 @@ class Simplex:
     # Procura pelo pivo
     def __pivo(self):
         # Mostrando a base atual
-        print self.base
+        print '\nBase atual',self.base
 
         # Variavel flag
         menor = float('Infinity')
@@ -218,17 +218,17 @@ class Simplex:
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh:', pivo, \
+            print 'O pivo dessa interacao eh:', self.arrendondar(pivo), \
             '[linha=' + `sai_base + 1` + ', coluna=' + `entra_base` + ']\n'
 
-            print 'Dividindo a coluna pivo'
+            print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
             self.mostrar_situacao()
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
-            print '\n\nVamos zerar a coluna do pivo'
+            print '\n\nb)Vamos zerar a coluna do pivo'
 
             linha_pivo = self.rows[sai_base]
 
@@ -268,6 +268,11 @@ class Simplex:
 
         print '\n5)Procurando o pivo'
         self.__escalonamento()
+
+        print '\n6)Resolucao'
+        print '\nZ=', self.obj[-1]
+        for i, res in enumerate(self.rows):
+            print 'x' + `self.base[i]` + "=", res[-1]
 
 if __name__ == '__main__':
 
