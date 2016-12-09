@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib as mp
+from tabulate import tabulate as tb
 
 class Sinal:
     MAIOR_IGUAL = 1
@@ -132,11 +133,20 @@ class Simplex:
     def mostrar_situacao(self, rhs=True):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
-        print '\n', tipo, '\t', np.round(self.obj[1:], 3)
-        # print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
+        # saida com o tabulate, um modulo para a saida ficar legivel no terminal
+        pretty_row = []
 
         for row in self.rows:
-            print '\t', np.round(row[1:], 3)
+            pretty_row.append(row[1:])
+
+        print '\n',tipo, tb(np.round([self.obj[1:]] + pretty_row,\
+        self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql'),'\n'
+
+        # print '\n', tipo, '\t', np.round(self.obj[1:], 3)
+        # print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
+
+        # for row in self.rows:
+            # print '\t', np.round(row[1:], 3)
             # print self.__formatar_saida(row[1:], rhs=rhs)
 
         # print self.__formatar_saida(self.obj[1:], final=True)
