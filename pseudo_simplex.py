@@ -154,7 +154,10 @@ class Simplex:
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self, rhs=True):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
-        self.saida_3(tipo)
+
+        self.saida_1(tipo)
+        # self.saida_2(tipo, rhs)
+        # self.saida_3(tipo)
 
     # Procura pelo pivo
     def __pivo(self):
@@ -225,7 +228,7 @@ class Simplex:
 
         contador = 1
         while criterio_parada != 0:
-            print '--------','\n', `contador` + 'a', 'Interacao com pivo'
+            print '\n--------\n', `contador` + 'a', 'Interacao com pivo'
             contador += 1
 
             entra_base, sai_base = self.__pivo()
@@ -255,7 +258,7 @@ class Simplex:
                 restricao = self.rows[i]
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
-                    print 'Somando a restricao', i + 1
+                    print '\nSomando a restricao', i + 1
                     self.mostrar_situacao()
 
             # Adicionando a linha pivo na funcao objetivo
@@ -263,7 +266,7 @@ class Simplex:
             aux_obj = self.obj[1:]
             aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
             self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
-            print 'Somando a linha do pivo a funcao objetivo'
+            print '\nSomando a linha do pivo a funcao objetivo'
             self.mostrar_situacao()
 
             # Trocando a base
