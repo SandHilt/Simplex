@@ -38,7 +38,7 @@ class Simplex:
         self.base = []
 
     def arrendondar(self, valor):
-        return round(valor, self.__DIGITOS_SIGNIFICATIVOS)
+        return np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
 
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
@@ -129,27 +129,32 @@ class Simplex:
 
         return saida
 
-    # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, rhs=True):
-        tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
-        # saida com o tabulate, um modulo para a saida ficar legivel no terminal
+    def saida_1(self, tipo):
+        print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
+        for row in self.rows:
+            print '\t', self.arrendondar(row[1:])
+
+    def saida_2(self, tipo, rhs):
+        print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
+        for row in self.rows:
+            print self.__formatar_saida(row[1:], rhs=rhs)
+        print self.__formatar_saida(self.obj[1:], final=True)
+
+    # saida com o tabulate, um modulo para a saida ficar legivel no terminal
+    def saida_3(self, tipo):
         pretty_row = []
 
         for row in self.rows:
             pretty_row.append(row[1:])
 
-        print '\n',tipo, tb(np.round([self.obj[1:]] + pretty_row,\
+        print '\n',tipo,'\n', tb(np.round([self.obj[1:]] + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql'),'\n'
 
-        # print '\n', tipo, '\t', np.round(self.obj[1:], 3)
-        # print self.__formatar_saida(self.obj[1:], tipo, rhs=rhs)
-
-        # for row in self.rows:
-            # print '\t', np.round(row[1:], 3)
-            # print self.__formatar_saida(row[1:], rhs=rhs)
-
-        # print self.__formatar_saida(self.obj[1:], final=True)
+    # Mostra a situacao atual da matriz
+    def mostrar_situacao(self, rhs=True):
+        tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
+        self.saida_3(tipo)
 
     # Procura pelo pivo
     def __pivo(self):
