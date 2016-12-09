@@ -135,6 +135,9 @@ class Simplex:
 
     # Procura pelo pivo
     def __pivo(self):
+        # Mostrando a base atual
+        print self.base
+
         # Variavel flag
         menor = float('Infinity')
 
@@ -147,6 +150,7 @@ class Simplex:
         # na funcao objetivo  para saber quem entra na base
         try:
             entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
+            print '\nNa funcao objetivo, esse eh o menor', self.obj[entra_base]
         # Caso nao haja ninguem para entrar na base,
         # entao estamos na solucao otima
         except(ValueError):
@@ -156,14 +160,16 @@ class Simplex:
         sai_base = -1
 
         if entra_base != -1:
+            print '\nEsse que entra: x' + `entra_base`, '\n'
             # Vamos procurar quem sai da base
-            print '\nEsse que entra: x' + `entra_base`
             for index, restricao in enumerate(self.rows):
                 # Exclui divisoes por zero
-                if restricao[entra_base] != 0:
+                if restricao[entra_base] > 0:
                     # Divisao entre o resultado da restricao
                     # e a vitima para ser o pivo
                     razao = restricao[-1] / float(restricao[entra_base])
+                    print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
+                    'a razao de', restricao[-1], '/', restricao[entra_base],'=',razao
 
                     # Elimina numeros negativos da escolha do pivo
                     if razao <= 0:
@@ -171,11 +177,13 @@ class Simplex:
                     elif razao < menor:
                         menor = razao
                         sai_base = index
-
+                else:
+                    print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
+                    'o numero eh nulo ou negativo:', restricao[-1], '/', restricao[entra_base]
             if menor == float('Infinity'):
                 print '\nproblema eh inviavel'
             else:
-                print 'Esse que sai: x' + `self.base[sai_base]` + '\n'
+                print '\nEsse que sai: x' + `self.base[sai_base]` + '\n'
 
         return entra_base, sai_base
 
@@ -225,15 +233,14 @@ class Simplex:
             aux_obj = self.obj[1:]
             print 'aux_obj', aux_obj
             print 'entra_base', entra_base
-            aux_obj += np.dot(linha_pivo, -aux_obj[entra_base])
-            print 'aux_obj', aux_obj
-            self.obj = [0] + aux_obj
+            aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
+            print 'aux_obj', aux_obj, 'aux_obj.len', len(aux_obj)
+            print 'self.obj', self.obj, 'len', len(self.obj)
+            self.obj = aux_obj
             self.mostrar_situacao()
 
             # Trocando a base
             self.base[sai_base] = entra_base
-
-            print '\nNova base:', self.base
 
             criterio_parada -= 1
 
@@ -253,10 +260,7 @@ class Simplex:
         self.__unir_com_rhs()
         self.mostrar_situacao()
 
-        print '\n5)Base atual'
-        print self.base
-
-        print '\n6)Procurando o pivo'
+        print '\n5)Procurando o pivo'
         self.__escalonamento()
 
 if __name__ == '__main__':
