@@ -99,51 +99,13 @@ class Simplex:
             self.rows[i] += [self.cons[i]]
         self.obj += [0]
 
-    # Coloca a saida como um modo convencional de ver
-    # tipo_otimizacao = para saber se os coeficientes sao do tipo MAX ou MIN
-    # final = se eh a ultima linha
-    # rhs = se ja tem a restricao acoplada
-    def __formatar_saida(self, arr, tipo_otimizacao=None, final=False, rhs=True):
-        saida = '\t'
-
-        if final == False:
-            if tipo_otimizacao != None:
-                saida = tipo_otimizacao + '\t'
-
-            for index, coeficiente in enumerate(arr):
-                # Estou na funcao objetivo e este eh o ultimo coeficiente
-                if tipo_otimizacao != None and index+1 == len(arr) and rhs == True:
-                    saida += '=' + `coeficiente`
-                    continue
-                cf = `coeficiente`
-                if coeficiente == 1:
-                    cf = ''
-                if coeficiente >= 0 and index != 0:
-                    cf = '+' + cf
-                saida += cf + 'x_' + `index + 1`
-        else:
-            for i in range(len(arr)):
-                if i != 0:
-                    saida += ','
-                saida += 'x_' + `i+1`
-            saida += '>= 0'
-
-        return saida
-
-
     def saida_1(self, tipo):
         print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
-    def saida_2(self, tipo, rhs):
-        print self.__formatar_saida(self.arrendondar(self.obj[1:]), tipo, rhs=rhs)
-        for row in self.rows:
-            print self.__formatar_saida(self.arrendondar(row[1:]), rhs=rhs)
-        print self.__formatar_saida(self.obj[1:], final=True)
-
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
-    def saida_3(self, tipo):
+    def saida_2(self, tipo):
         pretty_row = []
 
         for row in self.rows:
@@ -153,12 +115,11 @@ class Simplex:
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql'),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, rhs=True):
+    def mostrar_situacao(self):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
         # self.saida_1(tipo)
-        self.saida_2(tipo, rhs)
-        # self.saida_3(tipo)
+        self.saida_2(tipo)
 
     # Procura pelo pivo
     def __pivo(self):
@@ -277,15 +238,15 @@ class Simplex:
 
     def resolver(self):
         print '\n1)Antes de comecar'
-        self.mostrar_situacao(False)
+        self.mostrar_situacao()
 
         print '\n2)Mudando a funcao objetivo'
         self.__tipo_funcao_objetivo()
-        self.mostrar_situacao(False)
+        self.mostrar_situacao()
 
         print '\n3)Mudando as restricoes para a forma padrao'
         self.__tipo_restricoes()
-        self.mostrar_situacao(False)
+        self.mostrar_situacao()
 
         print '\n4)Unindo com o resultado'
         self.__unir_com_rhs()
