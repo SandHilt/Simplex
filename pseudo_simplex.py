@@ -204,8 +204,8 @@ class Simplex:
                         sai_base = index
                 else:
                     print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'o numero eh nulo ou negativo:', self.arrendondar(restricao[-1]), '/',\
-                    self.arrendondar(restricao[entra_base])
+                    'o numero eh nulo, negativo ou indeterminado:',\
+                    self.arrendondar(restricao[-1]), '/', self.arrendondar(restricao[entra_base])
             if menor == float('Infinity'):
                 print '\nproblema eh inviavel'
             else:
