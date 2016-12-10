@@ -341,6 +341,7 @@ class Simplex:
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento([self.__z_0])
             print 'Agora vamos para a segunda fase.'
+            self.__escalonamento()
         else:
             print '\nO problema eh de uma fase.'
             self.__escalonamento()
