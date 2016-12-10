@@ -354,18 +354,23 @@ class Simplex:
 
             variaveis_art_basicas = [a for a in self.base for b in self.__art if a == b]
 
+            print 'Chegamos em uma solucao otima\npara a primeira fase com base:', self.base, '\n'
+
             if len(variaveis_art_basicas) != 0:
                 print 'Temos variaveis artificiais como base, precisamos elimina-las.'
                 self.__escalonamento([self.__z_0], base=variaveis_art_basicas)
             else:
-                print 'Nao ha variaveis artificiais como base, vamos continuar.'
+                print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
+                print 'E vamos eliminar as variaveis artificiais.', self.__art
 
-                print 'Vamos eliminar as variaveis artificiais'
+                print self.obj
+                self.obj = np.delete(self.obj, self.__art)
+                print self.obj
 
-                for art in self.__art:
-                    self.obj = np.delete(self.obj, art)
-                    for i in range(len(self.rows)):
-                        self.rows[i] = np.delete(self.rows[i], art)
+                for i in range(len(self.rows)):
+                    print '\n', 'restricao', i+1, self.rows[i]
+                    self.rows[i] = np.delete(self.rows[i], self.__art)
+                    print 'restricao', i+1, self.rows[i]
 
             print 'Agora vamos para a segunda fase.'
             self.mostrar_situacao()
