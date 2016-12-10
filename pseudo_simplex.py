@@ -209,14 +209,21 @@ class Simplex:
         return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self, obj_0=self.obj):
-        criterio_parada = len([a for a in obj_0[1:-1] if a<0])
+    def __escalonamento(self):
+        # Se houver variavel artificial
+        # Preciso fazer a primeira fase das duas
+        # ja que a segunda fase eh o mesmo processo
+        if len(self.__art) > 0:
+            print 'olha aqui oh '
+            self.mostrar_situacao()
+
+
+
+        criterio_parada = len([a for a in self.obj[1:-1] if a<0])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
-        if obj_0 != self.obj
-            self.obj = np.array(self.obj, dtype=float)
-        obj_0 = np.array(obj, dtype=float)
+        self.obj = np.array(self.obj, dtype=float)
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
 
