@@ -175,7 +175,7 @@ class Simplex:
             self.saida_2(tipo, pack)
 
     # Procura pelo pivo
-    def __pivo(self, obj):
+    def __pivo(self, obj, base=[]):
         # Mostrando a base atual
         print '\nBase atual', self.base
 
@@ -187,16 +187,20 @@ class Simplex:
         # Index inicial para escolher quem entra na base
         entra_base = -1
 
-        # Encontra o indice da coluna com o valor mais negativo
-        # na funcao objetivo  para saber quem entra na base
-        try:
-            entra_base = objetivo.index(min([a for a in objetivo[1:-1] if a<0]))
-            print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
-            self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
-        # Caso nao haja ninguem para entrar na base,
-        # entao estamos na solucao otima
-        except(ValueError):
-            print 'ja esta na solucao otima'
+        # Caso eu tenha repassado uma base especial
+        if len(base) == 0:
+            # Encontra o indice da coluna com o valor mais negativo
+            # na funcao objetivo  para saber quem entra na base
+            try:
+                entra_base = objetivo.index(min([a for a in objetivo[1:-1] if a<0]))
+                print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
+                self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
+            # Caso nao haja ninguem para entrar na base,
+            # entao estamos na solucao otima
+            except(ValueError):
+                print 'ja esta na solucao otima'
+        else:
+            entra_base = [a for a in objetivo[1:-1] for b in self.__art if a != b]
 
         # Index inicial para escolher quem sai da base
         sai_base = -1
@@ -232,7 +236,7 @@ class Simplex:
         return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self, obj=[]):
+    def __escalonamento(self, obj=[], base=[]):
         print '\n5)Procurando o pivo'
 
         if len(obj) == 0:
@@ -240,7 +244,7 @@ class Simplex:
         else:
             obj = obj + [self.obj]
 
-        criterio_parada = len([a for a in obj[0][1:-1] if a<0])
+        criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or len(base)
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
@@ -254,7 +258,7 @@ class Simplex:
             print '\n--------\n', `contador` + 'a', 'Interacao com pivo'
             contador += 1
 
-            entra_base, sai_base = self.__pivo(obj[0])
+            entra_base, sai_base = self.__pivo(obj[0], base)
 
             # Significa que nao foi possivel achar um novo pivo
             if(entra_base == -1 or sai_base == -1):
@@ -331,13 +335,31 @@ class Simplex:
                         aux = self.rows[i]
                         aux = np.dot(aux, -1).tolist()
                         self.__z_0 += aux
-                        print self.__z_0
 
             print '\nAlterando os valores em suas respectivas restricoes temos:'
             self.mostrar_situacao(self.__z_0)
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento([self.__z_0])
+
+            variaveis_art_basicas = [a for a in self.base for b in self.__art if a == b]
+
+            if len(variaveis_art_basicas) != 0:
+                print 'Temos variavel basica que tambem eh artificial.'
+            else:
+                print 'Vamos eliminar as variaveis artificiais'
+
+                for art in self.__art:
+                    print 'art', art
+                    print self.obj, len(self.obj)
+                    self.obj = np.delete(self.obj, art)
+                    print self.obj
+                    for i in range(len(self.rows)):
+                        print self.rows[i], len(self.rows[i])
+                        self.rows[i] = np.delete(self.rows[i], art)
+                        print self.rows[i]
+
             print 'Agora vamos para a segunda fase.'
+            self.mostrar_situacao()
             self.__escalonamento()
         else:
             print '\nO problema eh de uma fase.'
