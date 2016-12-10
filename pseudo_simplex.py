@@ -254,7 +254,7 @@ class Simplex:
             print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-            self.mostrar_situacao()
+            self.mostrar_situacao(obj)
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
@@ -267,7 +267,7 @@ class Simplex:
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
                     print '\nSomando a restricao', i + 1
-                    self.mostrar_situacao()
+                    self.mostrar_situacao(obj)
 
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
@@ -275,7 +275,7 @@ class Simplex:
             aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
             obj = np.array([0] + aux_obj.tolist(), dtype=float)
             print '\nSomando a linha do pivo a funcao objetivo'
-            self.mostrar_situacao()
+            self.mostrar_situacao(obj)
 
             # Trocando a base
             self.base[sai_base] = entra_base
@@ -297,8 +297,6 @@ class Simplex:
 
             self.mostrar_situacao(self.__z_0)
 
-            print self.obj
-
             self.__z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
@@ -309,11 +307,15 @@ class Simplex:
                         'x' + `art`, 'como variavel artificial.'
                         aux = self.rows[i]
                         aux[art] = 0
-                        aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
-                        self.____obj_artz_0 += aux
+                        # aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
+                        aux = np.dot(aux, -1).tolist()
+                        self.__z_0 += aux
 
-            print 'Alterando em cada restricao temos:'
-            self.__escalonamento(self.____obj_artz_0)
+            print '\nAlterando em cada restricao temos:'
+            self.mostrar_situacao(self.__z_0)
+            print 'Agora vamos trabalhar com ela...'
+            self.__escalonamento(self.__z_0)
+            print 'Agora vamos para a segunda fase.'
         else:
             print '\n', 'O problema eh de uma fase.'
             self.__escalonamento()
