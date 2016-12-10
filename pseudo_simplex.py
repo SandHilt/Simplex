@@ -20,7 +20,7 @@ class Sinal:
 
 class Tipo:
     MAX = 1
-    MIN = 0
+    MIN = -1
 
 class Simplex:
     # Localizacao no array do tipo de restricao e o tipo de otimizacao
@@ -54,21 +54,25 @@ class Simplex:
         # Orientacao do Problema
         self.orientacao_problema = orientacao_problema
 
+        self.__dual = [self.obj]
+
     def arrendondar(self, valor):
         return np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
 
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
         # Primeiro vamos concatena-la
-        self.rows.append([sinal] + expressao + [valor])
+        row = [sinal] + expressao + [valor]
+        self.rows.append(row)
+        self.__dual.append(row)
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
         if(self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX):
-            # numpy.dot converte para ndarray
-            self.obj = np.dot(self.obj, -1)
-            # voltando a ser um array
-            self.obj = self.obj.tolist()
+            # numpy.dot converte para ndarray, entao
+            # tolist() volta obj a ser um array
+            self.obj = np.dot(self.obj, -1).tolist()
+            self.obj = self.obj
             self.obj[self.__TIPO_RESTRICAO] = Tipo.MIN
 
     # Transforma as desiguadades em igualdades
@@ -419,11 +423,11 @@ def testes():
     z          <= 5
     x,y,z >= 0
     """
-    # tabela = Simplex(Tipo.MAX, [2, 3, 2])
-    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
-    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
-    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
-    # tabela.resolver()
+    tabela = Simplex(Tipo.MAX, [2, 3, 2])
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
+    tabela.resolver()
 
     # Problema de duas fases
     """
@@ -434,18 +438,19 @@ def testes():
     x1 - x2      = -1
     x1,x2 >= 0
     """
-    print   'max z = 6x1 - x2','\n'\
-            'sa','\n'\
-            '4x1 + x2 <= 21','\n'\
-            '2x1 + 3x2 >= 13','\n'\
-            'x1 - x2 = -1','\n'\
-            'x1,x2 >= 0','\n'
+    # print   'max z = 6x1 - x2','\n'\
+    #         'sa','\n'\
+    #         '4x1 + x2 <= 21','\n'\
+    #         '2x1 + 3x2 >= 13','\n'\
+    #         'x1 - x2 = -1','\n'\
+    #         'x1,x2 >= 0','\n'
 
-    tabela = Simplex(Tipo.MAX, [6, -1])
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
-    tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
-    tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
-    tabela.resolver()
+    # tabela = Simplex(Tipo.MAX, [6, -1])
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    # tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    # tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    # print tabela.dual
+    # tabela.resolver()
 
 if __name__ == '__main__':
 
