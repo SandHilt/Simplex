@@ -250,9 +250,9 @@ class Simplex:
         somente_funcao_objetivo_original = True
 
         if len(obj) in (0, 1):
-            obj += [self.obj]
             if len(obj) == 1:
                 somente_funcao_objetivo_original = False
+            obj += [self.obj]
         else:
             raise ValueError('Erro na passagem do parametro obj')
 
@@ -285,9 +285,6 @@ class Simplex:
             print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-
-            print 'olha o obj[0]', obj[0], '\nolha o vetor dela', obj,\
-            '\nsomente_funcao_objetivo_original', somente_funcao_objetivo_original
 
             self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
