@@ -237,13 +237,16 @@ class Simplex:
         print '\n5)Procurando o pivo'
 
         if len(obj) == 0:
-            obj = self.obj
+            obj = [self.obj]
+        else:
+            obj = obj + [self.obj]
 
-        criterio_parada = len([a for a in obj[1:-1] if a<0])
+        criterio_parada = len([a for a in obj[0][1:-1] if a<0])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
-        obj = np.array(obj, dtype=float)
+        for i in range(len(obj)):
+            obj[i] = np.array(obj[i], dtype=float)
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
 
@@ -252,7 +255,7 @@ class Simplex:
             print '\n--------\n', `contador` + 'a', 'Interacao com pivo'
             contador += 1
 
-            entra_base, sai_base = self.__pivo(obj)
+            entra_base, sai_base = self.__pivo(obj[0])
 
             # Significa que nao foi possivel achar um novo pivo
             if(entra_base == -1 or sai_base == -1):
@@ -267,7 +270,7 @@ class Simplex:
             print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-            self.mostrar_situacao(obj)
+            self.mostrar_situacao(obj[0])
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
@@ -280,20 +283,22 @@ class Simplex:
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
                     print '\nSomando a restricao', i + 1
-                    self.mostrar_situacao(obj)
+                    self.mostrar_situacao(obj[0])
 
+            print '\nSomando a linha do pivo a funcao objetivo'
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
-            aux_obj = obj[1:]
-            aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
-            obj = np.array([0] + aux_obj.tolist(), dtype=float)
-            print '\nSomando a linha do pivo a funcao objetivo'
-            self.mostrar_situacao(obj)
+            for i in range(len(obj)):
+                aux_obj = obj[i][1:]
+                aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
+                if i == len(obj)-1:
+                    self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
+            self.mostrar_situacao(obj[0])
 
             # Trocando a base
             self.base[sai_base] = entra_base
 
-            criterio_parada = len([a for a in obj[1:-1] if a<0])
+            criterio_parada = len([a for a in obj[0][1:-1] if a<0])
 
     # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
@@ -334,7 +339,7 @@ class Simplex:
             print '\nAlterando os valores em suas respectivas restricoes temos:'
             self.mostrar_situacao(self.__z_0)
             print 'Agora vamos trabalhar com ela...'
-            self.__escalonamento(self.__z_0)
+            self.__escalonamento([self.__z_0])
             print 'Agora vamos para a segunda fase.'
         else:
             print '\nO problema eh de uma fase.'
