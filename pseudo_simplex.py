@@ -388,28 +388,8 @@ class Simplex:
             print '\nO problema eh de uma fase.'
             self.__escalonamento()
 
-    def __problema_dual(self):
-        print tb(self.__dual, tablefmt='psql')
-        print '\nTranspondo as restricoes:'
-        transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
-        print tb(transposta, tablefmt='psql')
-        dual_obj = [-self.__dual[0][0]] + transposta[-1]
 
-        print '\nfuncao objetivo da dual:', dual_obj
-
-        # Esses que eram os coeficientes do primal
-        # vao fazer parte do rhs do dual
-        rhs = self.__dual[0][1:-1]
-        print rhs
-        # Removendo a ultima linha
-        # que vai ser a nova linha objetivo
-        transposta = np.delete(transposta, -1, axis=0).tolist()
-        for i in range(len(transposta)):
-            transposta[i] += [rhs[i]]
-        print tb(transposta, tablefmt='psql')
-
-
-    def resolver(self):
+    def resolver(self, dualidade=False):
         print '\n1)Antes de comecar'
         self.mostrar_situacao()
 
@@ -433,8 +413,40 @@ class Simplex:
         for res in x:
             print 'x' + `res[0]`, '=', res[1]
 
-        print '\n7)Problema Dual:'
-        self.__problema_dual()
+        if dualidade == False:
+            print '\n7)Problema Dual:'
+            self.__problema_dual()
+
+    def __problema_dual(self):
+        orientacao = 'primal' if self.orientacao_problema == Problema.PRIMAL else 'dual'
+
+        print '\nEste eh o problema', orientacao,'do problema inicial:\n\n',\
+        tb(self.__dual, tablefmt='psql')
+
+        print '\nTranspondo as restricoes:'
+        transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
+        print tb(transposta, tablefmt='psql')
+        dual_obj = [-self.__dual[0][0]] + transposta[-1]
+
+        print '\nFuncao objetivo da dual:', dual_obj
+
+        # Esses que eram os coeficientes do primal
+        # vao fazer parte do rhs do dual
+        z_to_rhs = self.__dual[0][1:-1]
+        print 'Resultados do problema da dual:', z_to_rhs
+        # Removendo a ultima linha
+        # que vai ser a nova linha objetivo
+        transposta = np.delete(transposta, -1, axis=0).tolist()
+        for i in range(len(transposta)):
+            transposta[i] = [Sinal.MAIOR_IGUAL] + transposta[i] + [z_to_rhs[i]]
+        transposta.insert(0, dual_obj)
+        print tb(transposta, tablefmt='psql')
+
+        # Agora vamos resolver o Problema
+        problema_dual = Simplex(transposta[0][0], transposta[0][1:], Problema.DUAL)
+        for restricao in transposta[1:]:
+            problema_dual.adicionar_restricao(restricao[0], restricao[1:-1], restricao[-1])
+        problema_dual.resolver(dualidade=True)
 
 def testes():
     # Problema de uma fase
