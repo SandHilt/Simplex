@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib as mp
+import timeit
+
 # Testando para ver se tem ou nao o modulo
 try:
     from tabulate import tabulate as tb
@@ -302,8 +304,8 @@ class Simplex:
         for i, res in enumerate(self.rows):
             print 'x' + `self.base[i]`,'=', res[-1]
 
-if __name__ == '__main__':
-
+def testes():
+    # Problema de uma fase
     """
     max z = 2x + 3y + 2z
     st
@@ -318,6 +320,7 @@ if __name__ == '__main__':
     # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
     # tabela.resolver()
 
+    # Problema de duas fases
     """
     max z = 6x1 - x2
     st
@@ -326,9 +329,14 @@ if __name__ == '__main__':
     x1 - x2      = -1
     x1,x2 >= 0
     """
-
     tabela = Simplex(Tipo.MAX, [6, -1])
     tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
     tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
     tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
     tabela.resolver()
+
+if __name__ == '__main__':
+
+    numero_testes = 1
+    tempo = round(timeit.timeit(testes, number=numero_testes), 2)
+    print '\nTempo:', tempo ,'s em', numero_testes, 'teste(s).'
