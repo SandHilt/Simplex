@@ -355,8 +355,11 @@ class Simplex:
             variaveis_art_basicas = [a for a in self.base for b in self.__art if a == b]
 
             if len(variaveis_art_basicas) != 0:
-                print 'Temos variavel basica que tambem eh artificial.'
+                print 'Temos variaveis artificiais como base, precisamos elimina-las.'
+                self.__escalonamento([self.__z_0], base=variaveis_art_basicas)
             else:
+                print 'Nao ha variaveis artificiais como base, vamos continuar.'
+
                 print 'Vamos eliminar as variaveis artificiais'
 
                 for art in self.__art:
