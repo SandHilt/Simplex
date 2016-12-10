@@ -162,7 +162,7 @@ class Simplex:
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self, pack=[]):
-        if len(pack) == 0:
+        if len(pack) == 0 or pack == self.obj:
             pack = [self.obj]
         else:
             pack = [pack, self.obj]
@@ -239,10 +239,11 @@ class Simplex:
     def __escalonamento(self, obj=[], base=[]):
         print '\n5)Procurando o pivo'
 
-        if len(obj) == 0:
-            obj = [self.obj]
-        else:
-            obj = obj + [self.obj]
+        obj += [self.obj]
+        somente_funcao_objetivo_original = True
+
+        if len(obj) != 0:
+            somente_funcao_objetivo_original = False
 
         criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or len(base)
 
@@ -349,14 +350,9 @@ class Simplex:
                 print 'Vamos eliminar as variaveis artificiais'
 
                 for art in self.__art:
-                    print 'art', art
-                    print self.obj, len(self.obj)
                     self.obj = np.delete(self.obj, art)
-                    print self.obj
                     for i in range(len(self.rows)):
-                        print self.rows[i], len(self.rows[i])
                         self.rows[i] = np.delete(self.rows[i], art)
-                        print self.rows[i]
 
             print 'Agora vamos para a segunda fase.'
             self.mostrar_situacao()
