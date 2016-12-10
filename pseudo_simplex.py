@@ -71,11 +71,23 @@ class Simplex:
             if restricao[-1] < 0:
                 self.rows[idx] = np.dot(restricao, -1).tolist()
 
+            # No caso se for igual, entao aplicamos as variaveis
+            # artificiais
+            if sinal == Sinal.IGUAL:
+                self.__art += [self.numero_variavel]
+                self.base.append(self.numero_variavel)
+                self.numero_variavel += 1
+                self.obj[-1:-1] = [0]
+
+                # Adicionando zero as restricoes
+                for row in self.rows:
+                        row[-1:-1] = [0]
+
+                # Adicionando coeficiente a restricao
+                self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
-            if sinal == Sinal.MENOR_IGUAL:
-
+            elif sinal == Sinal.MENOR_IGUAL:
                 self.__folga += [self.numero_variavel]
-
                 self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
@@ -108,23 +120,6 @@ class Simplex:
                 restricao[-2] = 1
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
-            # Apesar de ser a ultima condicao, por seguranca, testamos
-            elif sinal == Sinal.IGUAL:
-                self.__art += [self.numero_variavel]
-
-                self.base.append(self.numero_variavel)
-
-                self.numero_variavel += 1
-
-                self.obj[-1:-1] = [0]
-
-                # Adicionando zero as restricoes
-                for row in self.rows:
-                    row[-1:-1] = [0]
-
-                # Adicionando coeficiente a restricao
-                restricao[-2] = 1
-
 
     def saida_1(self, tipo):
         print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
@@ -213,10 +208,11 @@ class Simplex:
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
-            self.mostrar_situacao()
+            # print self.__art
             for restricao in self.rows:
                 for art in self.__art:
-                    print restricao, art, restricao[art]
+                    pass
+                    # print restricao, art, restricao[art-1]
 
 
 
