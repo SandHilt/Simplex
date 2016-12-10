@@ -76,7 +76,6 @@ class Simplex:
             if sinal == Sinal.IGUAL:
                 self.__art += [self.numero_variavel]
                 self.base.append(self.numero_variavel)
-                self.numero_variavel += 1
                 self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
@@ -107,10 +106,14 @@ class Simplex:
                 self.__folga += [self.numero_variavel]
                 self.__art += [self.numero_variavel + 1]
 
+                # adicionando a variavel artificial a base
                 self.base.append(self.numero_variavel + 1)
 
-                self.numero_variavel += 2
+                # Como a cada interacao ele ja incrementa
+                # eu aumento soh mais uma porque sao duas variaveis
+                self.numero_variavel += 1
 
+                # Adicionando dois zeros a funcao objetivo
                 self.obj[-1:-1] = [0, 0]
 
                 for res in self.rows:
@@ -118,7 +121,6 @@ class Simplex:
 
                 restricao[-3] = -1
                 restricao[-2] = 1
-
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
     def saida_1(self, tipo):
