@@ -9,6 +9,10 @@ try:
 except ImportError:
     saida_2 = False
 
+class Problema:
+    PRIMAL = 1
+    DUAL = -1
+
 class Sinal:
     MAIOR_IGUAL = 1
     IGUAL = 0
@@ -28,7 +32,7 @@ class Simplex:
     # Total de numero de variaveis
     numero_variavel = 0
 
-    def __init__(self, tipo_fo, obj):
+    def __init__(self, tipo_fo, obj, orientacao_problema=Problema.PRIMAL):
         # Funcao objetivo
         self.obj = [tipo_fo] + obj + [0]
 
@@ -46,6 +50,9 @@ class Simplex:
 
         # base
         self.base = []
+
+        # Orientacao do Problema
+        self.orientacao_problema = orientacao_problema
 
     def arrendondar(self, valor):
         return np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
@@ -138,15 +145,15 @@ class Simplex:
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
     # saida normal sem nenhum modulo adicional
-    def saida_1(self, tipo, obj):
-        print '\n', tipo, '\t', self.arrendondar(obj[0][1:])
+    def saida_1(self, orientacao_problema, tipo, obj):
+        print '\n', orientacao_problema, tipo, '\t', self.arrendondar(obj[0][1:])
         for i in range(len(obj)-1):
-            print '\t', self.arrendondar(obj[1:])
+            print '\t', self.arrendondar(obj[i][1:])
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
-    def saida_2(self, tipo, obj):
+    def saida_2(self, orientacao_problema, tipo, obj):
         pretty_row = []
         for row in self.rows:
             pretty_row.append(row[1:])
@@ -156,7 +163,7 @@ class Simplex:
             pretty_obj.append(fo[1:])
 
         # tipo + tabela + formato da tabela + headers
-        print '\n',tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
+        print '\n', orientacao_problema, tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
         headers=['x' + `a` for a in range(1, len(obj[0][1:]))]+['rhs']),'\n'
 
@@ -166,14 +173,16 @@ class Simplex:
         if somente_funcao_objetivo_original == True:
             pack = [self.obj]
         else:
-            pack = pack + [self.obj]
+            # pack = np.array([pack.tolist()] + [self.obj], dtype=float)
+            pack = [pack.tolist()] + [self.obj]
 
         tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
+        orientacao = '(P)' if self.orientacao_problema == Problema.PRIMAL else '(D)'
 
         if saida_2 == False:
-            self.saida_1(tipo, pack)
+            self.saida_1(orientacao, tipo, pack)
         else:
-            self.saida_2(tipo, pack)
+            self.saida_2(orientacao, tipo, pack)
 
     # Procura pelo pivo
     def __pivo(self, obj, base=[]):
@@ -325,7 +334,7 @@ class Simplex:
             for art in self.__art:
                 self.__z_0[art] = 1
 
-            self.mostrar_situacao(self.__z_0)
+            self.mostrar_situacao(self.__z_0, False)
 
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
@@ -339,7 +348,7 @@ class Simplex:
                         self.__z_0 += aux
 
             print '\nAlterando os valores em suas respectivas restricoes temos:'
-            self.mostrar_situacao(self.__z_0)
+            self.mostrar_situacao(self.__z_0, False)
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento([self.__z_0])
 
