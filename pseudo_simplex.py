@@ -214,29 +214,21 @@ class Simplex:
 
         return entra_base, sai_base
 
+
+
+
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self):
-        # Para o prblema de duas fases
-        z_0 = []
+    def __escalonamento(self, obj=self.obj):
+        print '\n5)Procurando o pivo'
 
-        # Se houver variavel artificial
-        # Preciso fazer a primeira fase das duas
-        # ja que a segunda fase eh o mesmo processo
-        if len(self.__art) > 0:
-            z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
-            # Vamos procurar onde esta as restricoes
-            # de cada variavel artificial
-            for restricao in self.rows:
-                for art in self.__art:
-                    pass
-
-        criterio_parada = len([a for a in self.obj[1:-1] if a<0])
+        criterio_parada = len([a for a in obj[1:-1] if a<0])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
-        self.obj = np.array(self.obj, dtype=float)
+        obj = np.array(obj, dtype=float)
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
+
 
         contador = 1
         while criterio_parada != 0:
@@ -275,16 +267,36 @@ class Simplex:
 
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
-            aux_obj = self.obj[1:]
+            aux_obj = obj[1:]
             aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
-            self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
+            obj = np.array([0] + aux_obj.tolist(), dtype=float)
             print '\nSomando a linha do pivo a funcao objetivo'
             self.mostrar_situacao()
 
             # Trocando a base
             self.base[sai_base] = entra_base
 
-            criterio_parada = len([a for a in self.obj[1:-1] if a<0])
+            criterio_parada = len([a for a in obj[1:-1] if a<0])
+
+    # Descobre se o prblema eh de uma ou duas fases
+    def __teste_fases(self):
+        # Se houver variavel artificial
+        # Preciso fazer a primeira fase das duas
+        # ja que a segunda fase eh o mesmo processo
+        if len(self.__art) > 0:
+            z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
+            # Vamos procurar onde esta as restricoes
+            # de cada variavel artificial
+            for i in range(len(self.rows)):
+                for art in self.__art:
+                    if self.rows[i][art] == 1:
+                        aux = self.rows[i]
+                        aux[art] = 0
+                        aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
+                        z_0 += aux
+            self.__escalonamento(z_0)
+        else:
+            self.__escalonamento()
 
     def resolver(self):
         print '\n1)Antes de comecar'
@@ -298,10 +310,10 @@ class Simplex:
         self.__tipo_restricoes()
         self.mostrar_situacao()
 
-        print '\n4)Procurando o pivo'
-        self.__escalonamento()
+        print '\n4)Verificando se eh de duas fases'
+        self.__teste_fases()
 
-        print '\n5)Resolucao'
+        print '\n6)Resolucao'
         print '\nZ', '=', self.obj[-1]
         for i, res in enumerate(self.rows):
             print 'x' + `self.base[i]`,'=', res[-1]
