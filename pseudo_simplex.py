@@ -161,11 +161,13 @@ class Simplex:
         headers=['x' + `a` for a in range(1, len(obj[0][1:]))]+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, pack=[]):
-        if len(pack) == 0 or pack == self.obj:
+    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
+
+        if somente_funcao_objetivo_original == True:
             pack = [self.obj]
         else:
-            pack = [pack, self.obj]
+            pack += [self.obj]
+
 
         tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
@@ -274,7 +276,7 @@ class Simplex:
             print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-            self.mostrar_situacao(obj[0])
+            self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
@@ -287,7 +289,7 @@ class Simplex:
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
                     print '\nSomando a restricao', i + 1
-                    self.mostrar_situacao(obj[0])
+                    self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
             print '\nSomando a linha do pivo a funcao objetivo'
             # Adicionando a linha pivo na funcao objetivo
@@ -297,7 +299,7 @@ class Simplex:
                 aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
                 if i == len(obj)-1:
                     self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
-            self.mostrar_situacao(obj[0])
+            self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
             # Trocando a base
             self.base[sai_base] = entra_base
