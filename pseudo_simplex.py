@@ -20,7 +20,7 @@ class Simplex:
 
     def __init__(self, tipo_fo, obj):
         # Funcao objetivo
-        self.obj = [tipo_fo] + obj
+        self.obj = [tipo_fo] + obj + [0]
 
         # Colunas / Restricoes
         self.rows = []
@@ -58,10 +58,11 @@ class Simplex:
         # Deve ser decrescido -1 pois no inicio tem
         # o tipo da otimizacao MAX ou MIN e ainda
         # nao esta concatenado com rhs (valores)
-        numero_variavel = len(self.obj) - 1
+        numero_variavel = len(self.obj) - 2
 
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
+            numero_variavel += 1
 
             # Caso tenha numero negativo do lado direito
             if restricao[-1] < 0:
@@ -81,28 +82,35 @@ class Simplex:
                 # Adicionando coeficiente a restricao
                 restricao[len(restricao)-1] = 1
 
-                # Criando uma base inicial
-                self.base.append(len(restricao)-1)
+                if len(self.__art) == 0:
+                    # Criando uma base inicial
+                    self.base.append(len(restricao)-1)
 
                 if sinal == Sinal.MENOR_IGUAL:
                     restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                self.__folga += 1
-                self.__art += 1
+                self.__folga += [numero_variavel]
+                self.__art += [numero_variavel + 1]
+
+                numero_variavel += 2
 
                 self.obj += [0, 0]
 
                 for res in self.rows:
                     res += [0, 0]
+
                 restricao[len(restricao)-2] = -1
                 restricao[len(restricao)-1] = 1
+
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
-                self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
+                # self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
             # Apesar de ser a ultima condicao, por seguranca, testamos
             elif sinal == Sinal.IGUAL:
-                self.__art += 1
+                self.__art += [numero_variavel]
+                numero_variavel += 1
+
                 self.obj += [0]
 
                 # Adicionando zero as restricoes
@@ -112,13 +120,6 @@ class Simplex:
                 # Adicionando coeficiente a restricao
                 restricao[len(restricao)-1] = 1
 
-
-
-    # Unindo a todas as restricoes os seus respectivos resultados
-    def __unir_com_rhs(self):
-        for i in range(len(self.rows)):
-            self.rows[i] += [self.cons[i]]
-        self.obj += [0]
 
     def saida_1(self, tipo):
         print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
@@ -269,14 +270,10 @@ class Simplex:
         self.__tipo_restricoes()
         self.mostrar_situacao()
 
-        print '\n4)Unindo com o resultado'
-        self.__unir_com_rhs()
-        self.mostrar_situacao()
-
-        print '\n5)Procurando o pivo'
+        print '\n4)Procurando o pivo'
         self.__escalonamento()
 
-        print '\n6)Resolucao'
+        print '\n5)Resolucao'
         print '\nZ', '=', self.obj[-1]
         for i, res in enumerate(self.rows):
             print 'x' + `self.base[i]`,'=', res[-1]
