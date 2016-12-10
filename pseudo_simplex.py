@@ -166,8 +166,7 @@ class Simplex:
         if somente_funcao_objetivo_original == True:
             pack = [self.obj]
         else:
-            pack += [self.obj]
-
+            pack = pack + [self.obj]
 
         tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
