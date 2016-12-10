@@ -62,9 +62,8 @@ class Simplex:
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
         # Primeiro vamos concatena-la
-        row = [sinal] + expressao + [valor]
-        self.rows.append(row)
-        self.__dual.append(row)
+        self.rows.append([sinal] + expressao + [valor])
+        self.__dual.append([sinal] + expressao + [valor])
 
     # Transforma a funcao MAX para MIN
     def __tipo_funcao_objetivo(self):
@@ -389,6 +388,13 @@ class Simplex:
             print '\nO problema eh de uma fase.'
             self.__escalonamento()
 
+    def __problema_dual(self):
+        print tb(self.__dual, tablefmt='psql')
+        print 'vou rotacionar essa:'
+        transposta = np.transpose([a[1:] for a in self.__dual[1:]])
+        print tb(transposta, tablefmt='psql')
+
+
     def resolver(self):
         print '\n1)Antes de comecar'
         self.mostrar_situacao()
@@ -412,6 +418,9 @@ class Simplex:
         x.sort()
         for res in x:
             print 'x' + `res[0]`, '=', res[1]
+
+        print '\n7)Problema Dual:'
+        self.__problema_dual()
 
 def testes():
     # Problema de uma fase
