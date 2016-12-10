@@ -41,8 +41,10 @@ class Simplex:
         # Variaveis artificiais
         self.__art = []
 
-        self.__obj_art = []
+        # z_0 para funcao objetivo artificial
+        self.__z_0 = []
 
+        # base
         self.base = []
 
     def arrendondar(self, valor):
@@ -131,31 +133,34 @@ class Simplex:
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
     # saida normal sem nenhum modulo adicional
-    def saida_1(self, tipo):
-        print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
+    def saida_1(self, tipo, obj):
+        print '\n', tipo, '\t', self.arrendondar(obj[1:])
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
-    def saida_2(self, tipo):
+    def saida_2(self, tipo, obj):
         pretty_row = []
 
         for row in self.rows:
             pretty_row.append(row[1:])
 
         # tipo + tabela + formato da tabela + headers
-        print '\n',tipo,'\n', tb(np.round([self.obj[1:]] + pretty_row,\
+        print '\n',tipo,'\n', tb(np.round([obj[1:]] + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
-        headers=['x' + `a` for a in range(1, len(self.obj[1:]))]+['rhs']),'\n'
+        headers=['x' + `a` for a in range(1, len(obj[1:]))]+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self):
-        tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
+    def mostrar_situacao(self, obj=[]):
+        if len(obj) == 0:
+            obj = self.obj
+
+        tipo = 'min' if obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
         if saida_2 == False:
-            self.saida_1(tipo)
+            self.saida_1(tipo, obj)
         else:
-            self.saida_2(tipo)
+            self.saida_2(tipo, obj)
 
     # Procura pelo pivo
     def __pivo(self, obj):
@@ -284,7 +289,17 @@ class Simplex:
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
             print '\n', 'O problema eh de duas fases.'
-            z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
+
+            self.__z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
+            print 'Mostrando nova funcao objetivo:'
+            for art in self.__art:
+                self.__z_0[art] = 1
+
+            self.mostrar_situacao(self.__z_0)
+
+            print self.obj
+
+            self.__z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
             for i in range(len(self.rows)):
@@ -295,8 +310,10 @@ class Simplex:
                         aux = self.rows[i]
                         aux[art] = 0
                         aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
-                        z_0 += aux
-            self.__escalonamento(z_0)
+                        self.____obj_artz_0 += aux
+
+            print 'Alterando em cada restricao temos:'
+            self.__escalonamento(self.____obj_artz_0)
         else:
             print '\n', 'O problema eh de uma fase.'
             self.__escalonamento()
