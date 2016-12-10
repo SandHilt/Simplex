@@ -79,7 +79,7 @@ class Simplex:
         # nao esta concatenado com rhs (valores)
         self.__numero_variavel = len(self.obj) - 2
 
-        print 'Vamos criar um base inicial:'
+        print 'Vamos criar um base inicial:\n'
 
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
@@ -92,8 +92,12 @@ class Simplex:
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
             if sinal == Sinal.IGUAL:
+                print 'A restricao', idx+1, 'possui',\
+                'x' +  `self.__numero_variavel`,\
+                'como variavel artificial.'
+
                 self.__art += [self.__numero_variavel]
-                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.'
+                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
                 self.base.append(self.__numero_variavel)
                 self.obj[-1:-1] = [0]
 
@@ -105,6 +109,10 @@ class Simplex:
                 self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
             elif sinal == Sinal.MENOR_IGUAL:
+                print 'A restricao', idx+1, 'possui',\
+                'x' +  `self.__numero_variavel`,\
+                'como variavel de folga.'
+
                 self.__folga += [self.__numero_variavel]
                 self.obj[-1:-1] = [0]
 
@@ -116,18 +124,26 @@ class Simplex:
                 restricao[-2] = 1
 
                 # Colocando esse numero na base
-                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.'
+                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
                 self.base.append(self.__numero_variavel)
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
+                print 'A restricao', idx+1, 'possui',\
+                'x' +  `self.__numero_variavel`,\
+                'como variavel de folga.'
+
+                print 'A restricao', idx+1, 'possui',\
+                'x' +  `self.__numero_variavel + 1`,\
+                'como variavel artificial.'
+
                 self.__folga += [self.__numero_variavel]
                 self.__art += [self.__numero_variavel + 1]
 
                 # Adicionando a variavel artificial a base
-                print 'Colocando', 'x' + `self.__numero_variavel + 1`, 'na base.'
+                print 'Colocando', 'x' + `self.__numero_variavel + 1`, 'na base.\n'
                 self.base.append(self.__numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
@@ -319,18 +335,11 @@ class Simplex:
 
     # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
-        # Listando as variaveis de folga
-        for i in range(len(self.rows)):
-            for folga in self.__folga:
-                if abs(self.rows[i][folga]) == 1:
-                    print 'A restricao', i+1, 'possui',\
-                    'x' + `folga`, 'como variavel de folga.'
-
         # Se houver variavel artificial
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
-            print '\n', 'O problema eh de duas fases.'
+            print 'O problema eh de duas fases.'
 
             self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
             print 'Mostrando nova funcao objetivo:'
@@ -344,13 +353,11 @@ class Simplex:
             for i in range(len(self.rows)):
                 for art in self.__art:
                     if self.rows[i][art] == 1:
-                        print 'A restricao', i+1, 'possui',\
-                        'x' + `art`, 'como variavel artificial.'
                         aux = self.rows[i]
                         aux = np.dot(aux, -1).tolist()
                         self.__z_0 += aux
 
-            print '\nAlterando os valores em suas respectivas restricoes temos:'
+            print 'Alterando os valores em suas respectivas restricoes temos:'
             self.mostrar_situacao(self.__z_0, False)
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento([self.__z_0])
@@ -406,7 +413,7 @@ def testes():
     # Problema de uma fase
     """
     max z = 2x + 3y + 2z
-    st
+    sa
     2x + y + z <= 4
     x + 2y + z <= 7
     z          <= 5
@@ -421,12 +428,19 @@ def testes():
     # Problema de duas fases
     """
     max z = 6x1 - x2
-    st
+    sa
     4x1 + x2    <= 21
     2x1 + 3x2   >= 13
     x1 - x2      = -1
     x1,x2 >= 0
     """
+    print   'max z = 6x1 - x2','\n'\
+            'sa','\n'\
+            '4x1 + x2 <= 21','\n'\
+            '2x1 + 3x2 >= 13','\n'\
+            'x1 - x2 = -1','\n'\
+            'x1,x2 >= 0','\n'
+
     tabela = Simplex(Tipo.MAX, [6, -1])
     tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
     tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
