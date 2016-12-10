@@ -72,6 +72,8 @@ class Simplex:
         # nao esta concatenado com rhs (valores)
         self.numero_variavel = len(self.obj) - 2
 
+        print 'Vamos criar um base inicial:'
+
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
             self.numero_variavel += 1
@@ -118,7 +120,7 @@ class Simplex:
                 self.__art += [self.numero_variavel + 1]
 
                 # Adicionando a variavel artificial a base
-                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
+                print 'Colocando', 'x' + `self.numero_variavel + 1`, 'na base.'
                 self.base.append(self.numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
