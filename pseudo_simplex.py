@@ -390,8 +390,22 @@ class Simplex:
 
     def __problema_dual(self):
         print tb(self.__dual, tablefmt='psql')
-        print 'vou rotacionar essa:'
-        transposta = np.transpose([a[1:] for a in self.__dual[1:]])
+        print '\nTranspondo as restricoes:'
+        transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
+        print tb(transposta, tablefmt='psql')
+        dual_obj = [-self.__dual[0][0]] + transposta[-1]
+
+        print '\nfuncao objetivo da dual:', dual_obj
+
+        # Esses que eram os coeficientes do primal
+        # vao fazer parte do rhs do dual
+        rhs = self.__dual[0][1:-1]
+        print rhs
+        # Removendo a ultima linha
+        # que vai ser a nova linha objetivo
+        transposta = np.delete(transposta, -1, axis=0).tolist()
+        for i in range(len(transposta)):
+            transposta[i] += [rhs[i]]
         print tb(transposta, tablefmt='psql')
 
 
@@ -432,11 +446,11 @@ def testes():
     z          <= 5
     x,y,z >= 0
     """
-    tabela = Simplex(Tipo.MAX, [2, 3, 2])
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
-    tabela.resolver()
+    # tabela = Simplex(Tipo.MAX, [2, 3, 2])
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [2, 1, 1], 4)
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 2, 1], 7)
+    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 0, 1], 5)
+    # tabela.resolver()
 
     # Problema de duas fases
     """
@@ -454,12 +468,11 @@ def testes():
     #         'x1 - x2 = -1','\n'\
     #         'x1,x2 >= 0','\n'
 
-    # tabela = Simplex(Tipo.MAX, [6, -1])
-    # tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
-    # tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
-    # tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
-    # print tabela.dual
-    # tabela.resolver()
+    tabela = Simplex(Tipo.MAX, [6, -1])
+    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    tabela.resolver()
 
 if __name__ == '__main__':
 
