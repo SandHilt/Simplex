@@ -108,7 +108,6 @@ class Simplex:
                 restricao[-2] = 1
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
-                # self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
             # Apesar de ser a ultima condicao, por seguranca, testamos
             elif sinal == Sinal.IGUAL:
                 self.__art += [self.numero_variavel]
@@ -214,8 +213,10 @@ class Simplex:
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
-            print 'olha aqui oh '
             self.mostrar_situacao()
+            for restricao in self.rows:
+                for art in self.__art:
+                    print restricao, art, restricao[art]
 
 
 
