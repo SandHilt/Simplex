@@ -158,14 +158,14 @@ class Simplex:
             self.saida_2(tipo)
 
     # Procura pelo pivo
-    def __pivo(self):
+    def __pivo(self, obj):
         # Mostrando a base atual
         print '\nBase atual', self.base
 
         # Variavel flag
         menor = float('Infinity')
 
-        objetivo = self.obj.tolist()
+        objetivo = obj.tolist()
 
         # Index inicial para escolher quem entra na base
         entra_base = -1
@@ -175,7 +175,7 @@ class Simplex:
         try:
             entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
             print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
-            self.arrendondar(self.obj[entra_base]),'[coluna=' + `entra_base` + ']'
+            self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
         # Caso nao haja ninguem para entrar na base,
         # entao estamos na solucao otima
         except(ValueError):
@@ -214,12 +214,12 @@ class Simplex:
 
         return entra_base, sai_base
 
-
-
-
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self, obj=self.obj):
+    def __escalonamento(self, obj=[]):
         print '\n5)Procurando o pivo'
+
+        if len(obj) == 0:
+            obj = self.obj
 
         criterio_parada = len([a for a in obj[1:-1] if a<0])
 
@@ -229,13 +229,12 @@ class Simplex:
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
 
-
         contador = 1
         while criterio_parada != 0:
             print '\n--------\n', `contador` + 'a', 'Interacao com pivo'
             contador += 1
 
-            entra_base, sai_base = self.__pivo()
+            entra_base, sai_base = self.__pivo(obj)
 
             # Significa que nao foi possivel achar um novo pivo
             if(entra_base == -1 or sai_base == -1):
