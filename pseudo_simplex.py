@@ -173,7 +173,6 @@ class Simplex:
         if somente_funcao_objetivo_original == True:
             pack = [self.obj]
         else:
-            # pack = np.array([pack.tolist()] + [self.obj], dtype=float)
             pack = [pack.tolist()] + [self.obj]
 
         tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
@@ -248,12 +247,14 @@ class Simplex:
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self, obj=[], base=[]):
         print '\n5)Procurando o pivo'
-
-        obj += [self.obj]
         somente_funcao_objetivo_original = True
 
-        if len(obj) != 0:
-            somente_funcao_objetivo_original = False
+        if len(obj) in (0, 1):
+            obj += [self.obj]
+            if len(obj) == 1:
+                somente_funcao_objetivo_original = False
+        else:
+            raise ValueError('Erro na passagem do parametro obj')
 
         criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or len(base)
 
@@ -284,6 +285,10 @@ class Simplex:
             print 'a)Dividindo a coluna pivo'
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
+
+            print 'olha o obj[0]', obj[0], '\nolha o vetor dela', obj,\
+            '\nsomente_funcao_objetivo_original', somente_funcao_objetivo_original
+
             self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
@@ -334,7 +339,7 @@ class Simplex:
             for art in self.__art:
                 self.__z_0[art] = 1
 
-            self.mostrar_situacao(self.__z_0, False)
+            self.mostrar_situacao(self.__z_0, somente_funcao_objetivo_original=False)
 
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
@@ -363,14 +368,10 @@ class Simplex:
                 print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
                 print 'E vamos eliminar as variaveis artificiais.', self.__art
 
-                print self.obj
                 self.obj = np.delete(self.obj, self.__art)
-                print self.obj
 
                 for i in range(len(self.rows)):
-                    print '\n', 'restricao', i+1, self.rows[i]
                     self.rows[i] = np.delete(self.rows[i], self.__art)
-                    print 'restricao', i+1, self.rows[i]
 
             print 'Agora vamos para a segunda fase.'
             self.mostrar_situacao()
