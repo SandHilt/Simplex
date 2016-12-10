@@ -297,6 +297,14 @@ class Simplex:
 
     # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
+        print '\n'
+        # Verifica todas as variaveis de folga
+        for i in range(len(self.rows)):
+            for folga in self.__folga:
+                    if abs(self.rows[i][folga]) == 1:
+                        print 'A restricao', i+1, 'possui',\
+                        'x' + `folga`, 'como variavel de folga.'
+
         # Se houver variavel artificial
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
