@@ -134,33 +134,41 @@ class Simplex:
 
     # saida normal sem nenhum modulo adicional
     def saida_1(self, tipo, obj):
-        print '\n', tipo, '\t', self.arrendondar(obj[1:])
+        print '\n', tipo, '\t', self.arrendondar(obj[0][1:])
+        for i in range(len(obj)-1):
+            print '\t', self.arrendondar(obj[1:])
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
     def saida_2(self, tipo, obj):
         pretty_row = []
-
         for row in self.rows:
             pretty_row.append(row[1:])
 
+        pretty_obj = []
+        for fo in obj:
+            pretty_obj.append(fo[1:])
+
         # tipo + tabela + formato da tabela + headers
-        print '\n',tipo,'\n', tb(np.round([obj[1:]] + pretty_row,\
+        print '\n',tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
-        headers=['x' + `a` for a in range(1, len(obj[1:]))]+['rhs']),'\n'
+        headers=['x' + `a` for a in range(1, len(obj[0][1:]))]+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, obj=[]):
-        if len(obj) == 0:
-            obj = self.obj
+    def mostrar_situacao(self, pack=[]):
+        if len(pack) == 0:
+            pack = [self.obj]
+        else:
+            pack = [pack, self.obj]
 
-        tipo = 'min' if obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
+
+        tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
         if saida_2 == False:
-            self.saida_1(tipo, obj)
+            self.saida_1(tipo, pack)
         else:
-            self.saida_2(tipo, obj)
+            self.saida_2(tipo, pack)
 
     # Procura pelo pivo
     def __pivo(self, obj):
