@@ -30,7 +30,7 @@ class Simplex:
     __DIGITOS_SIGNIFICATIVOS = 3
 
     # Total de numero de variaveis
-    numero_variavel = 0
+    __numero_variavel = 0
 
     def __init__(self, tipo_fo, obj, orientacao_problema=Problema.PRIMAL):
         # Funcao objetivo
@@ -77,13 +77,13 @@ class Simplex:
         # Deve ser decrescido -1 pois no inicio tem
         # o tipo da otimizacao MAX ou MIN e ainda
         # nao esta concatenado com rhs (valores)
-        self.numero_variavel = len(self.obj) - 2
+        self.__numero_variavel = len(self.obj) - 2
 
         print 'Vamos criar um base inicial:'
 
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
-            self.numero_variavel += 1
+            self.__numero_variavel += 1
 
             # Caso tenha numero negativo do lado direito
             if restricao[-1] < 0:
@@ -92,9 +92,9 @@ class Simplex:
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
             if sinal == Sinal.IGUAL:
-                self.__art += [self.numero_variavel]
-                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
-                self.base.append(self.numero_variavel)
+                self.__art += [self.__numero_variavel]
+                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.'
+                self.base.append(self.__numero_variavel)
                 self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
@@ -105,7 +105,7 @@ class Simplex:
                 self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
             elif sinal == Sinal.MENOR_IGUAL:
-                self.__folga += [self.numero_variavel]
+                self.__folga += [self.__numero_variavel]
                 self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
@@ -116,23 +116,23 @@ class Simplex:
                 restricao[-2] = 1
 
                 # Colocando esse numero na base
-                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
-                self.base.append(self.numero_variavel)
+                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.'
+                self.base.append(self.__numero_variavel)
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                self.__folga += [self.numero_variavel]
-                self.__art += [self.numero_variavel + 1]
+                self.__folga += [self.__numero_variavel]
+                self.__art += [self.__numero_variavel + 1]
 
                 # Adicionando a variavel artificial a base
-                print 'Colocando', 'x' + `self.numero_variavel + 1`, 'na base.'
-                self.base.append(self.numero_variavel + 1)
+                print 'Colocando', 'x' + `self.__numero_variavel + 1`, 'na base.'
+                self.base.append(self.__numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
                 # eu aumento soh mais uma porque sao duas variaveis
-                self.numero_variavel += 1
+                self.__numero_variavel += 1
 
                 # Adicionando dois zeros a funcao objetivo
                 self.obj[-1:-1] = [0, 0]
@@ -254,6 +254,7 @@ class Simplex:
                 somente_funcao_objetivo_original = False
             obj += [self.obj]
         else:
+            print '\nValor de obj', obj
             raise ValueError('Erro na passagem do parametro obj')
 
         criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or len(base)
@@ -331,7 +332,7 @@ class Simplex:
         if len(self.__art) > 0:
             print '\n', 'O problema eh de duas fases.'
 
-            self.__z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
+            self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
             print 'Mostrando nova funcao objetivo:'
             for art in self.__art:
                 self.__z_0[art] = 1
@@ -394,8 +395,12 @@ class Simplex:
 
         print '\n6)Resolucao'
         print '\nZ', '=', self.obj[-1]
+        x = []
         for i, res in enumerate(self.rows):
-            print 'x' + `self.base[i]`,'=', res[-1]
+            x.append([self.base[i], res[-1]])
+        x.sort()
+        for res in x:
+            print 'x' + `res[0]`, '=', res[1]
 
 def testes():
     # Problema de uma fase
