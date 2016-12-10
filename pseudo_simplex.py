@@ -283,18 +283,22 @@ class Simplex:
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
+            print '\n', 'O problema eh de duas fases.'
             z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
             for i in range(len(self.rows)):
                 for art in self.__art:
                     if self.rows[i][art] == 1:
+                        print 'A restricao', i+1, 'possui',\
+                        'x' + `art`, 'como variavel artificial.'
                         aux = self.rows[i]
                         aux[art] = 0
                         aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
                         z_0 += aux
             self.__escalonamento(z_0)
         else:
+            print '\n', 'O problema eh de uma fase.'
             self.__escalonamento()
 
     def resolver(self):
