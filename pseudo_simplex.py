@@ -136,9 +136,10 @@ class Simplex:
         for row in self.rows:
             pretty_row.append(row[1:])
 
+        # tipo + tabela + formato da tabela + headers
         print '\n',tipo,'\n', tb(np.round([self.obj[1:]] + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
-        headers=['x' + `a` for a in range(1, self.numero_variavel-1)]+['rhs']),'\n'
+        headers=['x' + `a` for a in range(1, len(self.obj[1:]))]+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self):
