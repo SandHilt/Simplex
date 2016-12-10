@@ -191,7 +191,7 @@ class Simplex:
         # Encontra o indice da coluna com o valor mais negativo
         # na funcao objetivo  para saber quem entra na base
         try:
-            entra_base = objetivo.index(min([a for a in objetivo[1:] if a<0]))
+            entra_base = objetivo.index(min([a for a in objetivo[1:-1] if a<0]))
             print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
             self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
         # Caso nao haja ninguem para entrar na base,
@@ -297,13 +297,12 @@ class Simplex:
 
     # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
-        print '\n'
-        # Verifica todas as variaveis de folga
+        # Listando as variaveis de folga
         for i in range(len(self.rows)):
             for folga in self.__folga:
-                    if abs(self.rows[i][folga]) == 1:
-                        print 'A restricao', i+1, 'possui',\
-                        'x' + `folga`, 'como variavel de folga.'
+                if abs(self.rows[i][folga]) == 1:
+                    print 'A restricao', i+1, 'possui',\
+                    'x' + `folga`, 'como variavel de folga.'
 
         # Se houver variavel artificial
         # Preciso fazer a primeira fase das duas
@@ -332,13 +331,13 @@ class Simplex:
                         aux = np.dot(aux, -1).tolist()
                         self.__z_0 += aux
 
-            print '\nAlterando em cada restricao temos:'
+            print '\nAlterando os valores em suas respectivas restricoes temos:'
             self.mostrar_situacao(self.__z_0)
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento(self.__z_0)
             print 'Agora vamos para a segunda fase.'
         else:
-            print '\n', 'O problema eh de uma fase.'
+            print '\nO problema eh de uma fase.'
             self.__escalonamento()
 
     def resolver(self):
@@ -353,7 +352,7 @@ class Simplex:
         self.__tipo_restricoes()
         self.mostrar_situacao()
 
-        print '\n4)Verificando se eh de duas fases'
+        print '\n4)Verificando se eh de duas fases\n'
         self.__teste_fases()
 
         print '\n6)Resolucao'
