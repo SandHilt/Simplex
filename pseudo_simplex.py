@@ -167,7 +167,6 @@ class Simplex:
         else:
             pack = [pack, self.obj]
 
-
         tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
         if saida_2 == False:
@@ -322,7 +321,6 @@ class Simplex:
 
             self.mostrar_situacao(self.__z_0)
 
-            self.__z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
             for i in range(len(self.rows)):
@@ -331,10 +329,9 @@ class Simplex:
                         print 'A restricao', i+1, 'possui',\
                         'x' + `art`, 'como variavel artificial.'
                         aux = self.rows[i]
-                        aux[art] = 0
-                        # aux = np.dot(aux[:-1], -1).tolist() + aux[-1:]
                         aux = np.dot(aux, -1).tolist()
                         self.__z_0 += aux
+                        print self.__z_0
 
             print '\nAlterando os valores em suas respectivas restricoes temos:'
             self.mostrar_situacao(self.__z_0)
