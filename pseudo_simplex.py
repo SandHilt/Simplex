@@ -18,6 +18,9 @@ class Simplex:
     # Digitos significativos para usar na precisao das saidas
     __DIGITOS_SIGNIFICATIVOS = 3
 
+    # Total de numero de variaveis
+    numero_variavel = 0
+
     def __init__(self, tipo_fo, obj):
         # Funcao objetivo
         self.obj = [tipo_fo] + obj + [0]
@@ -58,11 +61,11 @@ class Simplex:
         # Deve ser decrescido -1 pois no inicio tem
         # o tipo da otimizacao MAX ou MIN e ainda
         # nao esta concatenado com rhs (valores)
-        numero_variavel = len(self.obj) - 2
+        self.numero_variavel = len(self.obj) - 2
 
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
-            numero_variavel += 1
+            self.numero_variavel += 1
 
             # Caso tenha numero negativo do lado direito
             if restricao[-1] < 0:
@@ -71,7 +74,7 @@ class Simplex:
             # No caso de for menor ou igual, ou seja, uma fase
             if sinal == Sinal.MENOR_IGUAL:
 
-                self.__folga += [numero_variavel]
+                self.__folga += [self.numero_variavel]
 
                 self.obj[-1:-1] = [0]
 
@@ -79,39 +82,37 @@ class Simplex:
                 for res in self.rows:
                     res[-1:-1] = [0]
 
-                print 'numero_variavel', numero_variavel
-
                 # Adicionando coeficiente a restricao
-                restricao[-1:-1] = [1]
+                restricao[-2] = 1
 
                 # Criando uma base inicial
-                self.base.append(numero_variavel)
+                self.base.append(self.numero_variavel)
 
-                if sinal == Sinal.MENOR_IGUAL:
-                    restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+                restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                self.__folga += [numero_variavel]
-                self.__art += [numero_variavel + 1]
+                self.__folga += [self.numero_variavel]
+                self.__art += [self.numero_variavel + 1]
 
-                self.base.append(numero_variavel + 1)
+                self.base.append(self.numero_variavel + 1)
 
-                numero_variavel += 2
+                self.numero_variavel += 2
 
                 self.obj[-1:-1] = [0, 0]
 
                 for res in self.rows:
                     res[-1:-1] = [0, 0]
 
-                restricao[-2:] = [-1, 1]
+                restricao[-3] = -1
+                restricao[-2] = 1
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
                 # self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
             # Apesar de ser a ultima condicao, por seguranca, testamos
             elif sinal == Sinal.IGUAL:
-                self.__art += [numero_variavel]
-                numero_variavel += 1
+                self.__art += [self.numero_variavel]
+                self.numero_variavel += 1
 
                 self.obj[-1:-1] = [0]
 
@@ -120,7 +121,7 @@ class Simplex:
                     row[-1:-1] = [0]
 
                 # Adicionando coeficiente a restricao
-                restricao[-1:] = 1
+                restricao[-2] = 1
 
 
     def saida_1(self, tipo):
@@ -136,7 +137,8 @@ class Simplex:
             pretty_row.append(row[1:])
 
         print '\n',tipo,'\n', tb(np.round([self.obj[1:]] + pretty_row,\
-        self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql'),'\n'
+        self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
+        headers=['x' + `a` for a in range(1, self.numero_variavel-1)]+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self):
