@@ -112,6 +112,9 @@ class Simplex:
             # Apesar de ser a ultima condicao, por seguranca, testamos
             elif sinal == Sinal.IGUAL:
                 self.__art += [self.numero_variavel]
+
+                self.base.append(self.numero_variavel)
+
                 self.numero_variavel += 1
 
                 self.obj[-1:-1] = [0]
@@ -151,7 +154,7 @@ class Simplex:
     # Procura pelo pivo
     def __pivo(self):
         # Mostrando a base atual
-        print '\nBase atual',self.base
+        print '\nBase atual', self.base
 
         # Variavel flag
         menor = float('Infinity')
@@ -206,12 +209,14 @@ class Simplex:
         return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self):
-        criterio_parada = len([a for a in self.obj[1:-1] if a<0])
+    def __escalonamento(self, obj_0=self.obj):
+        criterio_parada = len([a for a in obj_0[1:-1] if a<0])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
-        self.obj = np.array(self.obj, dtype=float)
+        if obj_0 != self.obj
+            self.obj = np.array(self.obj, dtype=float)
+        obj_0 = np.array(obj, dtype=float)
         for restricao in self.rows:
             restricao = np.array(restricao, dtype=float)
 
