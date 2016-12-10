@@ -73,18 +73,19 @@ class Simplex:
 
                 self.__folga += [numero_variavel]
 
-                self.obj += [0]
+                self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
                 for res in self.rows:
-                    res += [0]
+                    res[-1:-1] = [0]
+
+                print 'numero_variavel', numero_variavel
 
                 # Adicionando coeficiente a restricao
-                restricao[len(restricao)-1] = 1
+                restricao[-1:-1] = [1]
 
-                if len(self.__art) == 0:
-                    # Criando uma base inicial
-                    self.base.append(len(restricao)-1)
+                # Criando uma base inicial
+                self.base.append(numero_variavel)
 
                 if sinal == Sinal.MENOR_IGUAL:
                     restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
@@ -94,15 +95,16 @@ class Simplex:
                 self.__folga += [numero_variavel]
                 self.__art += [numero_variavel + 1]
 
+                self.base.append(numero_variavel + 1)
+
                 numero_variavel += 2
 
-                self.obj += [0, 0]
+                self.obj[-1:-1] = [0, 0]
 
                 for res in self.rows:
-                    res += [0, 0]
+                    res[-1:-1] = [0, 0]
 
-                restricao[len(restricao)-2] = -1
-                restricao[len(restricao)-1] = 1
+                restricao[-2:] = [-1, 1]
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
                 # self.__obj_art = np.zeros(len(self.__obj_art) + 1, dtype=float)
@@ -111,14 +113,14 @@ class Simplex:
                 self.__art += [numero_variavel]
                 numero_variavel += 1
 
-                self.obj += [0]
+                self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
                 for row in self.rows:
-                    row += [0]
+                    row[-1:-1] = [0]
 
                 # Adicionando coeficiente a restricao
-                restricao[len(restricao)-1] = 1
+                restricao[-1:] = 1
 
 
     def saida_1(self, tipo):
