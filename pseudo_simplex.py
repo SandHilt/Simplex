@@ -1,6 +1,11 @@
 import numpy as np
 import matplotlib as mp
-from tabulate import tabulate as tb
+# Testando para ver se tem ou nao o modulo
+try:
+    from tabulate import tabulate as tb
+    saida_2 = True
+except ImportError:
+    saida_2 = False
 
 class Sinal:
     MAIOR_IGUAL = 1
@@ -123,6 +128,7 @@ class Simplex:
                 restricao[-2] = 1
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
+    # saida normal sem nenhum modulo adicional
     def saida_1(self, tipo):
         print '\n', tipo, '\t', self.arrendondar(self.obj[1:])
         for row in self.rows:
@@ -144,8 +150,10 @@ class Simplex:
     def mostrar_situacao(self):
         tipo = 'min' if self.obj[self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
 
-        # self.saida_1(tipo)
-        self.saida_2(tipo)
+        if saida_2 == False:
+            self.saida_1(tipo)
+        else:
+            self.saida_2(tipo)
 
     # Procura pelo pivo
     def __pivo(self):
