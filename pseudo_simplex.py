@@ -216,17 +216,19 @@ class Simplex:
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self):
+        # Para o prblema de duas fases
+        z_0 = []
+
         # Se houver variavel artificial
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
-            # print self.__art
+            z_0 = np.zeros(2 + self.numero_variavel, dtype=float)
+            # Vamos procurar onde esta as restricoes
+            # de cada variavel artificial
             for restricao in self.rows:
                 for art in self.__art:
                     pass
-                    # print restricao, art, restricao[art-1]
-
-
 
         criterio_parada = len([a for a in self.obj[1:-1] if a<0])
 
