@@ -84,6 +84,7 @@ class Simplex:
             # artificiais
             if sinal == Sinal.IGUAL:
                 self.__art += [self.numero_variavel]
+                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
                 self.base.append(self.numero_variavel)
                 self.obj[-1:-1] = [0]
 
@@ -105,7 +106,8 @@ class Simplex:
                 # Adicionando coeficiente a restricao
                 restricao[-2] = 1
 
-                # Criando uma base inicial
+                # Colocando esse numero na base
+                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
                 self.base.append(self.numero_variavel)
 
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
@@ -115,7 +117,8 @@ class Simplex:
                 self.__folga += [self.numero_variavel]
                 self.__art += [self.numero_variavel + 1]
 
-                # adicionando a variavel artificial a base
+                # Adicionando a variavel artificial a base
+                print 'Colocando', 'x' + `self.numero_variavel`, 'na base.'
                 self.base.append(self.numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
@@ -336,7 +339,7 @@ class Simplex:
         self.__tipo_funcao_objetivo()
         self.mostrar_situacao()
 
-        print '\n3)Mudando as restricoes para a forma padrao'
+        print '\n3)Mudando as restricoes para a forma padrao', '\n'
         self.__tipo_restricoes()
         self.mostrar_situacao()
 
