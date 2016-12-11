@@ -232,7 +232,7 @@ class Simplex:
 
         if orientacao_problema == Problema.PRIMAL:
             orientacao = '(P)'
-        elif orientacao_problema == Problema.DUAL
+        elif orientacao_problema == Problema.DUAL:
             orientacao = '(D)'
         else:
             print 'Numero da orientacao problema:', self.orientacao_problema
@@ -368,10 +368,13 @@ class Simplex:
 
             # print 'Mostrando a soma da(s) fo(s)', obj
             for i in range(len(obj)):
-                aux_obj = obj[i][1:]
-                aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
+                print obj[i]
+                obj[i][1:] += np.dot(linha_pivo, -obj[i][entra_base])
+                # Como eu sempre coloco a funcao objetivo original na ultima
+                # posicao, tempos que atualizar direto na fonte (self.obj)
+                # pois na funcao objetivo ela soh esta como copia por valor
                 if i == len(obj)-1:
-                    self.obj = np.array([0] + aux_obj.tolist(), dtype=float)
+                    self.obj = obj[i]
             self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
 
             # Trocando a base
