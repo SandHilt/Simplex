@@ -182,6 +182,25 @@ class Simplex:
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
+    def saida_2_desigualdades(self, obj):
+        pretty_sinal = ['-' for a in range(len(obj))]
+        for row in self.rows:
+            analise = row[0]
+
+            if analise == Sinal.IGUAL:
+                pretty_sinal.append('=')
+            elif analise == Sinal.MAIOR_IGUAL:
+                pretty_sinal.append('>=')
+            elif analise == Sinal.MENOR_IGUAL:
+                pretty_sinal.append('<=')
+
+        cabeca = ['Z'] + ['Z_0' for a in range(len(obj)-1)] + \
+        ['R' + `a` for a in range(1, len(pretty_sinal))]
+
+        pretty_sinal = np.reshape(pretty_sinal, (1,-1))
+
+        print tb(pretty_sinal, tablefmt='psql',headers=cabeca), '\n'
+
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
     def saida_2(self, orientacao_problema, tipo, obj):
         pretty_row = []
@@ -200,8 +219,8 @@ class Simplex:
 
             pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
         else:
-            obj = len(obj[0][1:-1])
-            self.__ordem_variaveis = {x: x+1 for x in range(obj)}
+            tamanho_obj = len(obj[0][1:-1])
+            self.__ordem_variaveis = {x: x+1 for x in range(tamanho_obj)}
             pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
 
 
@@ -210,6 +229,8 @@ class Simplex:
         tb(self.arrendondar(pretty_obj + pretty_row),\
         tablefmt='psql',\
         headers=pretty_order+['rhs']),'\n'
+
+        self.saida_2_desigualdades(obj)
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
