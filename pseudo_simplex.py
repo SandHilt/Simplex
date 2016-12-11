@@ -353,6 +353,7 @@ class Simplex:
             print 'O problema eh de duas fases.'
 
             self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
+            self.__z_0[self.__TIPO_RESTRICAO] = Tipo.MIN
             print 'Mostrando nova funcao objetivo:'
             for art in self.__art:
                 self.__z_0[art] = 1
