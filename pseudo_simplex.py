@@ -281,6 +281,9 @@ class Simplex:
         # Index inicial para escolher quem entra na base
         entra_base = -1
 
+        # Index inicial para escolher quem sai da base
+        sai_base = -1
+
         # Caso eu tenha repassado uma base especial
         if len(base) == 0:
             # Encontra o indice da coluna com o valor mais negativo
@@ -295,11 +298,9 @@ class Simplex:
                 print 'ja esta na solucao otima'
         # Caso eu precise eliminar as variaveis artificiais da base
         else:
-            entra_base = min([a for a in base for b in self.__art if a == b])
+            sai_base = min([a for a in base for b in self.__art if a == b])
             # entra_base = [a for a in objetivo[1:-1] for b in self.__art if a != b]
 
-        # Index inicial para escolher quem sai da base
-        sai_base = -1
 
         if entra_base != -1:
             print '\nEsse que entra: x' + `entra_base`, '\n'
