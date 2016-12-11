@@ -65,17 +65,21 @@ class Simplex:
         self.rows.append([sinal] + expressao + [valor])
         self.__dual.append([sinal] + expressao + [valor])
 
-    # Transforma a funcao MAX para MIN
-    def __tipo_funcao_objetivo(self):
+    # Mudando para a forma padrao
+    def __forma_padrao(self):
+        print '\na)Mudando a funcao objetivo, se necessario'
+        # Transforma a funcao MAX para MIN
         if(self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX):
             # numpy.dot converte para ndarray, entao
             # tolist() volta obj a ser um array
             self.obj = np.dot(self.obj, -1).tolist()
             self.obj = self.obj
             self.obj[self.__TIPO_RESTRICAO] = Tipo.MIN
+        else:
+            print '\nNao sera necessario mudar a funcao objetivo\n'
 
-    # Transforma as desiguadades em igualdades
-    def __tipo_restricoes(self):
+        self.mostrar_situacao()
+
         # Index do numero atual da variavel adicional
         # Deve ser decrescido -1 pois no inicio tem
         # o tipo da otimizacao MAX ou MIN e ainda
@@ -84,6 +88,7 @@ class Simplex:
 
         print 'Vamos criar um base inicial:\n'
 
+        # Transforma as desiguadades em igualdades
         for idx, restricao in enumerate(self.rows):
             sinal = restricao[self.__TIPO_RESTRICAO]
             self.__numero_variavel += 1
@@ -265,7 +270,7 @@ class Simplex:
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self, obj=[], base=[]):
-        print '\n5)Procurando o pivo'
+        print '\n4)Procurando o pivo'
         somente_funcao_objetivo_original = True
 
         if len(obj) in (0, 1):
@@ -393,18 +398,14 @@ class Simplex:
         print '\n1)Antes de comecar'
         self.mostrar_situacao()
 
-        print '\n2)Mudando a funcao objetivo'
-        self.__tipo_funcao_objetivo()
+        print '\n2)Mudando as restricoes para a forma padrao', '\n'
+        self.__forma_padrao()
         self.mostrar_situacao()
 
-        print '\n3)Mudando as restricoes para a forma padrao', '\n'
-        self.__tipo_restricoes()
-        self.mostrar_situacao()
-
-        print '\n4)Verificando se eh de duas fases\n'
+        print '\n3)Verificando se eh de duas fases\n'
         self.__teste_fases()
 
-        print '\n6)Resolucao'
+        print '\n5)Resolucao'
         print '\nZ', '=', self.obj[-1]
         x = []
         for i, res in enumerate(self.rows):
@@ -414,7 +415,7 @@ class Simplex:
             print 'x' + `res[0]`, '=', res[1]
 
         if dualidade == False:
-            print '\n7)Problema Dual:'
+            print '\n6)Problema Dual:'
             self.__problema_dual()
 
     def __problema_dual(self):
