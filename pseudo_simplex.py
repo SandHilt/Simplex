@@ -96,7 +96,7 @@ class Simplex:
 
             # Caso tenha numero negativo do lado direito
             if self.rows[idx][-1] < 0:
-                print '\nPrecisamos multiplicar por -1 a restricao', idx+1,'\n',\
+                print 'Precisamos multiplicar por -1 a restricao', idx+1,'\n',\
                 'pois nao pode haver resultado negativo do lado direito.'
                 self.rows[idx] = np.dot(self.rows[idx], -1).tolist()
 
@@ -191,10 +191,22 @@ class Simplex:
         for fo in obj:
             pretty_obj.append(fo[1:])
 
-        pretty_order = ['x' + `a` for a in range(1, len(obj[0][1:]))]
+        pretty_order = ''
 
         if len(self.__ordem_variaveis) != 0:
-            pretty_order = ['x' + `a` for a in self.__ordem_variaveis]
+            if self.__numero_variavel > len(self.__ordem_variaveis):
+                print len(self.__ordem_variaveis), self.__numero_variavel
+                self.__ordem_variaveis = {q:q+1 for q in range(self.__numero_variavel)}
+                # diff = self.__numero_variavel - len(self.__ordem_variaveis) + 1
+                # for a in range(diff):
+                #     base = len(self.__ordem_variaveis) + a
+                #     self.__ordem_variaveis[base] = base + 1
+
+            pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
+        else:
+            obj = len(obj[0][1:-1])
+            self.__ordem_variaveis = {x: x+1 for x in range(obj)}
+            pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
 
         # tipo + tabela + formato da tabela + headers
         print '\n', orientacao_problema, tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
@@ -362,6 +374,8 @@ class Simplex:
             self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
             self.__z_0[self.__TIPO_RESTRICAO] = Tipo.MIN
             print 'Mostrando nova funcao objetivo:'
+            print 'tamanho numero_variaveis', self.__numero_variavel
+            print 'self.__ordem_variaveis', self.__ordem_variaveis
             for art in self.__art:
                 self.__z_0[art] = 1
 
@@ -400,7 +414,7 @@ class Simplex:
                 #     print 'P E R I G O', folga_acima_art
 
                 print self.__ordem_variaveis, self.__art
-                self.__ordem_variaveis = np.delete(self.__ordem_variaveis, self.__art).tolist()
+                self.__ordem_variaveis = {chave: valor for chave, valor in self.__ordem_variaveis.items() if valor is not self.__art}
                 print self.__ordem_variaveis
 
                 self.obj = np.delete(self.obj, self.__art)
@@ -423,8 +437,6 @@ class Simplex:
         print '\n2)Mudando as restricoes para a forma padrao', '\n'
         self.__forma_padrao()
         self.mostrar_situacao()
-
-        self.__ordem_variaveis = range(1, self.__numero_variavel)
 
         print '\n3)Passo a passo para o metodo de duas fases\n'
         self.__teste_fases()
