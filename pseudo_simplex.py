@@ -95,7 +95,7 @@ class Simplex:
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
             if sinal == Sinal.IGUAL:
-                print 'A restricao', idx+1, 'possui',\
+                print 'Adicioando na restricao', idx+1, 'a variavel',\
                 'x' +  `self.__numero_variavel`,\
                 'como variavel artificial.'
 
@@ -112,7 +112,7 @@ class Simplex:
                 self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
             elif sinal == Sinal.MENOR_IGUAL:
-                print 'A restricao', idx+1, 'possui',\
+                print 'Adicionando na restricao', idx+1, 'a variavel',\
                 'x' +  `self.__numero_variavel`,\
                 'como variavel de folga.'
 
@@ -134,11 +134,11 @@ class Simplex:
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                print 'A restricao', idx+1, 'possui',\
+                print 'Adicionando na restricao', idx+1, 'a variavel',\
                 'x' +  `self.__numero_variavel`,\
                 'como variavel de folga.'
 
-                print 'A restricao', idx+1, 'possui',\
+                print 'Adicionando na restricao', idx+1, 'a variavel',\
                 'x' +  `self.__numero_variavel + 1`,\
                 'como variavel artificial.'
 
@@ -420,12 +420,16 @@ class Simplex:
     def __problema_dual(self):
         orientacao = 'primal' if self.orientacao_problema == Problema.PRIMAL else 'dual'
 
-        print '\nEste eh o problema', orientacao,'do problema inicial:\n\n',\
-        tb(self.__dual, tablefmt='psql')
+        print '\nEste eh o problema', orientacao, 'inicial:\n\n',\
+        tb(self.__dual, tablefmt='psql',\
+        headers=['tp'] + ['x' + `a + 1` for a in range(len(self.__dual[0])-2)] + ['rhs'])
 
+        orientacao = '(P)' if self.orientacao_problema == Problema.PRIMAL else '(D)'
         print '\nTranspondo as restricoes:'
         transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
-        print tb(transposta, tablefmt='psql')
+        print  orientacao, '\n', tb(transposta, tablefmt='psql',\
+        headers=['x' + `a + 1` for a in range(len(transposta[0]))] + ['rhs'])
+
         dual_obj = [-self.__dual[0][0]] + transposta[-1]
 
         print '\nFuncao objetivo da dual:', dual_obj
@@ -440,7 +444,8 @@ class Simplex:
         for i in range(len(transposta)):
             transposta[i] = [Sinal.MAIOR_IGUAL] + transposta[i] + [z_to_rhs[i]]
         transposta.insert(0, dual_obj)
-        print tb(transposta, tablefmt='psql')
+        print tb(transposta, tablefmt='psql',\
+        headers=['tp'] + ['x' + `a` for a in range(len(transposta[-1]))] + ['rhs'])
 
         # Agora vamos resolver o Problema
         problema_dual = Simplex(transposta[0][0], transposta[0][1:], Problema.DUAL)
