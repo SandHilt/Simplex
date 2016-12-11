@@ -216,8 +216,27 @@ class Simplex:
         else:
             pack = [pack.tolist()] + [self.obj]
 
-        tipo = 'min' if pack[0][self.__TIPO_RESTRICAO] == Tipo.MIN else 'max'
-        orientacao = '(P)' if self.orientacao_problema == Problema.PRIMAL else '(D)'
+        tipo = ''
+        tipo_otimizacao = pack[0][self.__TIPO_RESTRICAO]
+
+        if tipo_otimizacao == Tipo.MIN:
+            tipo = 'min'
+        elif tipo_otimizacao == Tipo.MAX:
+            tipo = 'max'
+        else:
+            print 'Linha objetivo', self.obj
+            raise ValueError('Erro no tipo da linha objetivo.')
+
+        orientacao = ''
+        orientacao_problema = self.orientacao_problema
+
+        if orientacao_problema == Problema.PRIMAL:
+            orientacao = '(P)'
+        elif orientacao_problema == Problema.DUAL
+            orientacao = '(D)'
+        else:
+            print 'Numero da orientacao problema:', self.orientacao_problema
+            raise ValueError('Erro na orientacao do problema.')
 
         if saida_2 == False:
             self.saida_1(orientacao, tipo, pack)
@@ -346,6 +365,8 @@ class Simplex:
             print '\nSomando a linha do pivo a funcao objetivo'
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
+
+            # print 'Mostrando a soma da(s) fo(s)', obj
             for i in range(len(obj)):
                 aux_obj = obj[i][1:]
                 aux_obj += np.dot(linha_pivo, -aux_obj[entra_base-1])
@@ -450,7 +471,13 @@ class Simplex:
     def __problema_dual(self):
         # Dicionario para ajudar no texto
         text_orientacao = {Problema.PRIMAL: 'primal', Problema.DUAL: 'dual'}
-        orientacao = text_orientacao[self.orientacao_problema]
+
+        if self.orientacao_problema == Problema.PRIMAL or\
+        self.orientacao_problema == Problema.DUAL:
+            orientacao = text_orientacao[self.orientacao_problema]
+        else:
+            print 'Numero da orientacao', self.orientacao_problema
+            ValueError('Ha um problema na orientacao do problema.')
 
         print '\nEste eh o problema', orientacao, 'inicial:\n\n',\
         tb(self.__dual, tablefmt='psql',\
