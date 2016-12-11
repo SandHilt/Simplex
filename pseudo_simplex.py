@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib as mp
 import timeit
 
+saida_2 = True
+
 # Testando para ver se tem ou nao o modulo
 try:
     from tabulate import tabulate as tb
-    saida_2 = True
 except ImportError:
     saida_2 = False
 
@@ -182,14 +183,20 @@ class Simplex:
             print '\t', self.arrendondar(row[1:])
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
-    def saida_2(self, orientacao_problema, tipo, obj):
+    def saida_2(self, orientacao_problema, tipo, obj, inicio=False):
         pretty_row = []
         for row in self.rows:
-            pretty_row.append(row[1:])
+            aux = row[1:]
+            if inicio == True:
+                aux[-1:-1] = [row[0]]
+            pretty_row.append(aux)
 
         pretty_obj = []
         for fo in obj:
-            pretty_obj.append(fo[1:])
+            aux = fo[1:]
+            if inicio == True:
+                aux[-1:-1] = [fo[0]]
+            pretty_obj.append(aux)
 
         pretty_order = ''
 
@@ -203,13 +210,19 @@ class Simplex:
             self.__ordem_variaveis = {x: x+1 for x in range(obj)}
             pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
 
-        # tipo + tabela + formato da tabela + headers
-        print '\n', orientacao_problema, tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
-        self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
-        headers=pretty_order+['rhs']),'\n'
+        header_final = ['rhs']
+
+        if inicio == True:
+            header_final = ['tp'] + header_final
+
+        # orientacao + tipo + tabela + formato da tabela + headers
+        print '\n', orientacao_problema, tipo,'\n',\
+        tb(self.arrendondar(pretty_obj + pretty_row),\
+        tablefmt='psql',\
+        headers=pretty_order+header_final),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
+    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True, inicio=False):
 
         if somente_funcao_objetivo_original == True:
             pack = [self.obj]
@@ -241,7 +254,7 @@ class Simplex:
         if saida_2 == False:
             self.saida_1(orientacao, tipo, pack)
         else:
-            self.saida_2(orientacao, tipo, pack)
+            self.saida_2(orientacao, tipo, pack, inicio)
 
     # Procura pelo pivo
     def __pivo(self, obj, base=[]):
@@ -447,7 +460,7 @@ class Simplex:
 
     def resolver(self, dualidade=False):
         print '\n1)Antes de comecar'
-        self.mostrar_situacao()
+        self.mostrar_situacao(inicio=True)
 
         print '\n2)Mudando as restricoes para a forma padrao', '\n'
         self.__forma_padrao()
@@ -469,7 +482,7 @@ class Simplex:
             print '\n6)Problema Dual:'
             self.__problema_dual()
         else:
-            print '\n---- END ----\n'
+            print '\n---- FIM ----\n'
 
     def __problema_dual(self):
         # Dicionario para ajudar no texto
