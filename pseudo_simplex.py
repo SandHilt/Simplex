@@ -286,15 +286,17 @@ class Simplex:
             # Encontra o indice da coluna com o valor mais negativo
             # na funcao objetivo  para saber quem entra na base
             try:
-                entra_base = objetivo.index(min([a for a in objetivo[1:-1] if a<0]))
+                entra_base = objetivo[1:-1].index(min([a for a in objetivo[1:-1] if a<0])) + 1
                 print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
                 self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
             # Caso nao haja ninguem para entrar na base,
             # entao estamos na solucao otima
             except(ValueError):
                 print 'ja esta na solucao otima'
+        # Caso eu precise eliminar as variaveis artificiais da base
         else:
-            entra_base = [a for a in objetivo[1:-1] for b in self.__art if a != b]
+            entra_base = min([a for a in base for b in self.__art if a == b])
+            # entra_base = [a for a in objetivo[1:-1] for b in self.__art if a != b]
 
         # Index inicial para escolher quem sai da base
         sai_base = -1
