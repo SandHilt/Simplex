@@ -89,15 +89,16 @@ class Simplex:
         print 'b)Vamos criar um base inicial:\n'
 
         # Transforma as desiguadades em igualdades
-        for idx, restricao in enumerate(self.rows):
-            sinal = restricao[self.__TIPO_RESTRICAO]
+        for idx in range(len(self.rows)):
             self.__numero_variavel += 1
 
             # Caso tenha numero negativo do lado direito
-            if restricao[-1] < 0:
+            if self.rows[idx][-1] < 0:
                 print '\nPrecisamos multiplicar por -1 a restricao', idx+1,'\n',\
                 'pois nao pode haver resultado negativo do lado direito.'
-                self.rows[idx] = np.dot(restricao, -1).tolist()
+                self.rows[idx] = np.dot(self.rows[idx], -1).tolist()
+
+            sinal = self.rows[idx][self.__TIPO_RESTRICAO]
 
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
@@ -137,7 +138,7 @@ class Simplex:
                 print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
                 self.base.append(self.__numero_variavel)
 
-                restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+                self.rows[idx][self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
@@ -168,7 +169,7 @@ class Simplex:
 
                 self.rows[idx][-3] = -1
                 self.rows[idx][-2] = 1
-                restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
+                self.rows[idx][self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
     # saida normal sem nenhum modulo adicional
     def saida_1(self, orientacao_problema, tipo, obj):
