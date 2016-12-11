@@ -417,6 +417,8 @@ class Simplex:
         if dualidade == False:
             print '\n6)Problema Dual:'
             self.__problema_dual()
+        else:
+            print '\n---- END ----\n'
 
     def __problema_dual(self):
         orientacao = 'primal' if self.orientacao_problema == Problema.PRIMAL else 'dual'
@@ -479,18 +481,11 @@ def testes():
     x1 - x2      = -1
     x1,x2 >= 0
     """
-    # print   'max z = 6x1 - x2','\n'\
-    #         'sa','\n'\
-    #         '4x1 + x2 <= 21','\n'\
-    #         '2x1 + 3x2 >= 13','\n'\
-    #         'x1 - x2 = -1','\n'\
-    #         'x1,x2 >= 0','\n'
-
-    tabela = Simplex(Tipo.MAX, [6, -1])
-    tabela.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
-    tabela.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
-    tabela.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
-    tabela.resolver()
+    tabela_duas_fases = Simplex(Tipo.MAX, [6, -1])
+    tabela_duas_fases.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    tabela_duas_fases.resolver()
 
 if __name__ == '__main__':
 
