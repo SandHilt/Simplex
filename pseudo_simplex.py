@@ -56,6 +56,8 @@ class Simplex:
 
         self.__dual = [self.obj]
 
+        self.__ordem_variaveis = []
+
     def arrendondar(self, valor):
         return np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
 
@@ -189,10 +191,15 @@ class Simplex:
         for fo in obj:
             pretty_obj.append(fo[1:])
 
+        pretty_order = ['x' + `a` for a in range(1, len(obj[0][1:]))]
+
+        if len(self.__ordem_variaveis) != 0:
+            pretty_order = ['x' + `a` for a in self.__ordem_variaveis]
+
         # tipo + tabela + formato da tabela + headers
         print '\n', orientacao_problema, tipo,'\n', tb(np.round(pretty_obj + pretty_row,\
         self.__DIGITOS_SIGNIFICATIVOS), tablefmt='psql',\
-        headers=['x' + `a` for a in range(1, len(obj[0][1:]))]+['rhs']),'\n'
+        headers=pretty_order+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
@@ -385,6 +392,17 @@ class Simplex:
                 print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
                 print 'E vamos eliminar as variaveis artificiais.', self.__art
 
+                # Testando para ver se nao ha uma variavel de folga com index acima
+                # de uma variavel artificial
+                # folga_acima_art = [folga for folga in self.__folga for art in self.__art if folga > art]
+
+                # if len(folga_acima_art) > 0:
+                #     print 'P E R I G O', folga_acima_art
+
+                print self.__ordem_variaveis, self.__art
+                self.__ordem_variaveis = np.delete(self.__ordem_variaveis, self.__art).tolist()
+                print self.__ordem_variaveis
+
                 self.obj = np.delete(self.obj, self.__art)
 
                 for i in range(len(self.rows)):
@@ -405,6 +423,8 @@ class Simplex:
         print '\n2)Mudando as restricoes para a forma padrao', '\n'
         self.__forma_padrao()
         self.mostrar_situacao()
+
+        self.__ordem_variaveis = range(1, self.__numero_variavel)
 
         print '\n3)Passo a passo para o metodo de duas fases\n'
         self.__teste_fases()
