@@ -405,7 +405,7 @@ class Simplex:
         self.__forma_padrao()
         self.mostrar_situacao()
 
-        print '\n3)Verificando se eh de duas fases\n'
+        print '\n3)Passo a passo para o metodo de duas fases\n'
         self.__teste_fases()
 
         print '\n5)Resolucao'
