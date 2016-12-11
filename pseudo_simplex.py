@@ -269,7 +269,7 @@ class Simplex:
             self.saida_2(orientacao, tipo, pack)
 
     # Procura pelo pivo
-    def __pivo(self, obj, base=[]):
+    def __pivo(self, obj, base=False):
         # Mostrando a base atual
         print '\nBase atual', self.base
 
@@ -285,7 +285,7 @@ class Simplex:
         sai_base = -1
 
         # Caso eu tenha repassado uma base especial
-        if len(base) == 0:
+        if base == False:
             # Encontra o indice da coluna com o valor mais negativo
             # na funcao objetivo  para saber quem entra na base
             try:
@@ -298,8 +298,22 @@ class Simplex:
                 print 'ja esta na solucao otima'
         # Caso eu precise eliminar as variaveis artificiais da base
         else:
-            sai_base = min([a for a in base for b in self.__art if a == b])
-            # entra_base = [a for a in objetivo[1:-1] for b in self.__art if a != b]
+            # pegando o menor o indice das variaveis artificiais
+            sai_base = min([a for a in self.base for b in self.__art if a == b])
+
+            # Indice da variavel artificial na base para saber a linha do pivo
+            idx = self.base.index(sai_base)
+
+            # Real indice no dicionario ou seja, real coluna no pivo no dicionario
+            idx_aux = {a:b for a,b in self.__ordem_variaveis.item() if b == sai_base}
+            idx_aux = [a for a in idx_aux][0]
+
+            # Teste para ver se a variavel artificial funciona
+            if self.rows[idx][idx_aux] == 0:
+                possiveis_entradas = {a:b for a,b in self.__ordem_variaveis.items()\
+                for c in self.__art if b is not c}
+                possiveis_entradas = min(possiveis_entradas.values())
+                entra_base = possiveis_entradas
 
 
         if entra_base != -1:
@@ -333,7 +347,7 @@ class Simplex:
         return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
-    def __escalonamento(self, obj=[], base=[]):
+    def __escalonamento(self, obj=[], base=False):
         print '\n4)Procurando o pivo'
         somente_funcao_objetivo_original = True
 
@@ -345,7 +359,8 @@ class Simplex:
             print '\nValor de obj', obj
             raise ValueError('Erro na passagem do parametro obj')
 
-        criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or len(base)
+        criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or\
+        len([x for x in self.base for y in self.__art if x == y])
 
         # Alterando array para ndarray para fazer com que
         # cada linha seja do tipo float
@@ -447,7 +462,7 @@ class Simplex:
             # Caso haja, precisamos tentar elimina-las usando elas como sai_base
             if len(variaveis_art_basicas) != 0:
                 print 'Temos variaveis artificiais como base, precisamos elimina-las.'
-                self.__escalonamento([self.__z_0], base=variaveis_art_basicas)
+                self.__escalonamento([self.__z_0], base=True)
             else:
                 print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
                 print 'E vamos eliminar as variaveis artificiais.', self.__art
