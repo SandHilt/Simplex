@@ -86,7 +86,7 @@ class Simplex:
         # nao esta concatenado com rhs (valores)
         self.__numero_variavel = len(self.obj) - 2
 
-        print 'Vamos criar um base inicial:\n'
+        print 'b)Vamos criar um base inicial:\n'
 
         # Transforma as desiguadades em igualdades
         for idx, restricao in enumerate(self.rows):
