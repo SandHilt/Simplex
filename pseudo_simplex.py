@@ -199,7 +199,7 @@ class Simplex:
 
         pretty_sinal = np.reshape(pretty_sinal, (1,-1))
 
-        print tb(pretty_sinal, tablefmt='psql',headers=cabeca), '\n'
+        print 'Sinais:\n', tb(pretty_sinal, tablefmt='psql',headers=cabeca), '\n'
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
     def saida_2(self, orientacao_problema, tipo, obj):
