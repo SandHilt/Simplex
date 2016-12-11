@@ -182,6 +182,7 @@ class Simplex:
         for row in self.rows:
             print '\t', self.arrendondar(row[1:])
 
+    # Tabela adicional que mostra a situacao dos sinais
     def saida_2_desigualdades(self, obj):
         pretty_sinal = ['-' for a in range(len(obj))]
         for row in self.rows:
