@@ -183,20 +183,14 @@ class Simplex:
             print '\t', self.arrendondar(row[1:])
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
-    def saida_2(self, orientacao_problema, tipo, obj, inicio=False):
+    def saida_2(self, orientacao_problema, tipo, obj):
         pretty_row = []
         for row in self.rows:
-            aux = row[1:]
-            if inicio == True:
-                aux[-1:-1] = [row[0]]
-            pretty_row.append(aux)
+            pretty_row.append(row[1:])
 
         pretty_obj = []
         for fo in obj:
-            aux = fo[1:]
-            if inicio == True:
-                aux[-1:-1] = [fo[0]]
-            pretty_obj.append(aux)
+            pretty_obj.append(fo[1:])
 
         pretty_order = ''
 
@@ -210,19 +204,15 @@ class Simplex:
             self.__ordem_variaveis = {x: x+1 for x in range(obj)}
             pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
 
-        header_final = ['rhs']
-
-        if inicio == True:
-            header_final = ['tp'] + header_final
 
         # orientacao + tipo + tabela + formato da tabela + headers
         print '\n', orientacao_problema, tipo,'\n',\
         tb(self.arrendondar(pretty_obj + pretty_row),\
         tablefmt='psql',\
-        headers=pretty_order+header_final),'\n'
+        headers=pretty_order+['rhs']),'\n'
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True, inicio=False):
+    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
 
         if somente_funcao_objetivo_original == True:
             pack = [self.obj]
@@ -254,7 +244,7 @@ class Simplex:
         if saida_2 == False:
             self.saida_1(orientacao, tipo, pack)
         else:
-            self.saida_2(orientacao, tipo, pack, inicio)
+            self.saida_2(orientacao, tipo, pack)
 
     # Procura pelo pivo
     def __pivo(self, obj, base=[]):
@@ -381,7 +371,6 @@ class Simplex:
 
             # print 'Mostrando a soma da(s) fo(s)', obj
             for i in range(len(obj)):
-                print obj[i]
                 obj[i][1:] += np.dot(linha_pivo, -obj[i][entra_base])
                 # Como eu sempre coloco a funcao objetivo original na ultima
                 # posicao, tempos que atualizar direto na fonte (self.obj)
@@ -460,7 +449,7 @@ class Simplex:
 
     def resolver(self, dualidade=False):
         print '\n1)Antes de comecar'
-        self.mostrar_situacao(inicio=True)
+        self.mostrar_situacao()
 
         print '\n2)Mudando as restricoes para a forma padrao', '\n'
         self.__forma_padrao()
