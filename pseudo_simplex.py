@@ -195,12 +195,7 @@ class Simplex:
 
         if len(self.__ordem_variaveis) != 0:
             if self.__numero_variavel > len(self.__ordem_variaveis):
-                print len(self.__ordem_variaveis), self.__numero_variavel
                 self.__ordem_variaveis = {q:q+1 for q in range(self.__numero_variavel)}
-                # diff = self.__numero_variavel - len(self.__ordem_variaveis) + 1
-                # for a in range(diff):
-                #     base = len(self.__ordem_variaveis) + a
-                #     self.__ordem_variaveis[base] = base + 1
 
             pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
         else:
@@ -374,8 +369,6 @@ class Simplex:
             self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
             self.__z_0[self.__TIPO_RESTRICAO] = Tipo.MIN
             print 'Mostrando nova funcao objetivo:'
-            print 'tamanho numero_variaveis', self.__numero_variavel
-            print 'self.__ordem_variaveis', self.__ordem_variaveis
             for art in self.__art:
                 self.__z_0[art] = 1
 
@@ -395,10 +388,12 @@ class Simplex:
             print 'Agora vamos trabalhar com ela...'
             self.__escalonamento([self.__z_0])
 
+            # Lista de variaveis artificias como base
             variaveis_art_basicas = [a for a in self.base for b in self.__art if a == b]
 
             print 'Chegamos em uma solucao otima\npara a primeira fase com base:', self.base, '\n'
 
+            # Caso haja, precisamos tentar elimina-las usando elas como sai_base
             if len(variaveis_art_basicas) != 0:
                 print 'Temos variaveis artificiais como base, precisamos elimina-las.'
                 self.__escalonamento([self.__z_0], base=variaveis_art_basicas)
@@ -406,21 +401,17 @@ class Simplex:
                 print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
                 print 'E vamos eliminar as variaveis artificiais.', self.__art
 
-                # Testando para ver se nao ha uma variavel de folga com index acima
-                # de uma variavel artificial
-                # folga_acima_art = [folga for folga in self.__folga for art in self.__art if folga > art]
-
-                # if len(folga_acima_art) > 0:
-                #     print 'P E R I G O', folga_acima_art
-
-                print self.__ordem_variaveis, self.__art
-                self.__ordem_variaveis = {chave: valor for chave, valor in self.__ordem_variaveis.items() if valor is not self.__art}
-                print self.__ordem_variaveis
+                # Removendo as variaveis artificiais
+                self.__ordem_variaveis = {chave: valor\
+                for chave, valor in self.__ordem_variaveis.items() if valor not in self.__art}
 
                 self.obj = np.delete(self.obj, self.__art)
 
                 for i in range(len(self.rows)):
                     self.rows[i] = np.delete(self.rows[i], self.__art)
+
+                self.__numero_variavel -= len(self.__art)
+                self.__art = []
 
             print 'Agora vamos para a segunda fase.'
             self.mostrar_situacao()
