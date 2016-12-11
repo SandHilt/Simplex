@@ -95,6 +95,8 @@ class Simplex:
 
             # Caso tenha numero negativo do lado direito
             if restricao[-1] < 0:
+                print '\nPrecisamos multiplicar por -1 a restricao', idx+1,'\n',\
+                'pois nao pode haver resultado negativo do lado direito.'
                 self.rows[idx] = np.dot(restricao, -1).tolist()
 
             # No caso se for igual, entao aplicamos as variaveis
@@ -421,26 +423,30 @@ class Simplex:
             print '\n---- END ----\n'
 
     def __problema_dual(self):
-        orientacao = 'primal' if self.orientacao_problema == Problema.PRIMAL else 'dual'
+        # Dicionario para ajudar no texto
+        text_orientacao = {Problema.PRIMAL: 'primal', Problema.DUAL: 'dual'}
+        orientacao = text_orientacao[self.orientacao_problema]
 
         print '\nEste eh o problema', orientacao, 'inicial:\n\n',\
         tb(self.__dual, tablefmt='psql',\
         headers=['tp'] + ['x' + `a + 1` for a in range(len(self.__dual[0])-2)] + ['rhs'])
 
-        orientacao = '(P)' if self.orientacao_problema == Problema.PRIMAL else '(D)'
         print '\nTranspondo as restricoes:'
         transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
-        print  orientacao, '\n', tb(transposta, tablefmt='psql',\
+        print  '\n', tb(transposta, tablefmt='psql',\
         headers=['x' + `a + 1` for a in range(len(transposta[0]))] + ['rhs'])
 
+        # Funcao objetivo do novo problema
         dual_obj = [-self.__dual[0][0]] + transposta[-1]
 
-        print '\nFuncao objetivo da dual:', dual_obj
+        orientacao = text_orientacao[-self.orientacao_problema]
+
+        print '\nFuncao objetivo', orientacao, ':', dual_obj
 
         # Esses que eram os coeficientes do primal
         # vao fazer parte do rhs do dual
         z_to_rhs = self.__dual[0][1:-1]
-        print 'Resultados do problema da dual:', z_to_rhs
+        print 'Resultados do problema', orientacao,':', z_to_rhs
         # Removendo a ultima linha
         # que vai ser a nova linha objetivo
         transposta = np.delete(transposta, -1, axis=0).tolist()
