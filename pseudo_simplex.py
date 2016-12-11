@@ -124,7 +124,7 @@ class Simplex:
                     res[-1:-1] = [0]
 
                 # Adicionando coeficiente a restricao
-                restricao[-2] = 1
+                self.rows[idx][-2] = 1
 
                 # Colocando esse numero na base
                 print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
@@ -159,8 +159,8 @@ class Simplex:
                 for res in self.rows:
                     res[-1:-1] = [0, 0]
 
-                restricao[-3] = -1
-                restricao[-2] = 1
+                self.rows[idx][-3] = -1
+                self.rows[idx][-2] = 1
                 restricao[self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
     # saida normal sem nenhum modulo adicional
