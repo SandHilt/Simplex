@@ -330,7 +330,7 @@ class Simplex:
                     self.arrendondar(restricao[entra_base]),'=',razao
 
                     # Elimina numeros negativos da escolha do pivo
-                    if razao <= 0:
+                    if razao < 0:
                         continue
                     elif razao < menor:
                         menor = razao
