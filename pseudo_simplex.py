@@ -487,7 +487,7 @@ class Simplex:
             self.__escalonamento()
 
 
-    def resolver(self, dualidade=False):
+    def resolver(self, dualidade=True):
         print '\n1)Antes de comecar'
         self.mostrar_situacao()
 
@@ -507,7 +507,7 @@ class Simplex:
         for res in x:
             print 'x' + `res[0]`, '=', res[1]
 
-        if dualidade == False:
+        if dualidade == True:
             print '\n6)Problema Dual:'
             self.__problema_dual()
         else:
@@ -557,7 +557,7 @@ class Simplex:
         problema_dual = Simplex(transposta[0][0], transposta[0][1:], Problema.DUAL)
         for restricao in transposta[1:]:
             problema_dual.adicionar_restricao(restricao[0], restricao[1:-1], restricao[-1])
-        problema_dual.resolver(dualidade=True)
+        problema_dual.resolver(dualidade=False)
 
 def testes():
     # Problema de uma fase
@@ -584,11 +584,21 @@ def testes():
     x1 - x2      = -1
     x1,x2 >= 0
     """
-    tabela_duas_fases = Simplex(Tipo.MAX, [6, -1])
-    tabela_duas_fases.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
-    tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
-    tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
-    tabela_duas_fases.resolver()
+    # tabela_duas_fases = Simplex(Tipo.MAX, [6, -1])
+    # tabela_duas_fases.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    # tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    # tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    # tabela_duas_fases.resolver()
+
+
+    # Adicinado outro problema
+    tab = Simplex(Tipo.MIN, [1, 1])
+    tab.adicionar_restricao(Sinal.MAIOR_IGUAL, [10, 20], 161)
+    tab.adicionar_restricao(Sinal.MAIOR_IGUAL, [10, 0], 41)
+    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 0], 10)
+    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 1], 10)
+    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [-1, 1], 2)
+    tab.resolver(dualidade=False)
 
 if __name__ == '__main__':
 
