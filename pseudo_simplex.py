@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib as mp
 import timeit
 
+from fractions import Fraction
+
 saida_2 = True
 
 # Testando para ver se tem ou nao o modulo
@@ -59,8 +61,19 @@ class Simplex:
 
         self.__ordem_variaveis = []
 
-    def arrendondar(self, valor):
-        return np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
+    def arredondar(self, valor):
+        # Se for passado um objeto interavel, como uma lista
+        if hasattr(valor, '__iter__') == True:
+            frac = lambda x: str(Fraction(x).limit_denominator(10**self.__DIGITOS_SIGNIFICATIVOS))
+
+            for idx in range(len(valor)):
+                valor[idx] = map(frac, valor[idx])
+
+        # Se for passado apenas um valor
+        else:
+            valor = np.round(valor, self.__DIGITOS_SIGNIFICATIVOS)
+
+        return valor
 
     # Adicionando a lista de restricoes a tabela
     def adicionar_restricao(self, sinal, expressao, valor):
@@ -176,11 +189,11 @@ class Simplex:
 
     # saida normal sem nenhum modulo adicional
     def saida_1(self, orientacao_problema, tipo, obj):
-        print '\n', orientacao_problema, tipo, '\t', self.arrendondar(obj[0][1:])
+        print '\n', orientacao_problema, tipo, '\t', self.arredondar(obj[0][1:])
         for i in range(len(obj)-1):
-            print '\t', self.arrendondar(obj[i][1:])
+            print '\t', self.arredondar(obj[i][1:])
         for row in self.rows:
-            print '\t', self.arrendondar(row[1:])
+            print '\t', self.arredondar(row[1:])
 
     # Tabela adicional que mostra a situacao dos sinais
     def saida_2_desigualdades(self, obj):
@@ -227,7 +240,7 @@ class Simplex:
 
         # orientacao + tipo + tabela + formato da tabela + headers
         print '\n', orientacao_problema, tipo,'\n',\
-        tb(self.arrendondar(pretty_obj + pretty_row),\
+        tb(self.arredondar(pretty_obj + pretty_row),\
         tablefmt='psql',\
         headers=pretty_order+['rhs']),'\n'
 
@@ -291,7 +304,7 @@ class Simplex:
             try:
                 entra_base = objetivo[1:-1].index(min([a for a in objetivo[1:-1] if a<0])) + 1
                 print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
-                self.arrendondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
+                self.arredondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
             # Caso nao haja ninguem para entrar na base,
             # entao estamos na solucao otima
             except(ValueError):
@@ -305,7 +318,7 @@ class Simplex:
             idx = self.base.index(sai_base)
 
             # Real indice no dicionario ou seja, real coluna no pivo no dicionario
-            idx_aux = {a:b for a,b in self.__ordem_variaveis.item() if b == sai_base}
+            idx_aux = {a:b for a,b in self.__ordem_variaveis.items() if b == sai_base}
             idx_aux = [a for a in idx_aux][0]
 
             # Teste para ver se a variavel artificial funciona
@@ -324,10 +337,10 @@ class Simplex:
                 if restricao[entra_base] > 0:
                     # Divisao entre o resultado da restricao
                     # e a vitima para ser o pivo
-                    razao = self.arrendondar(restricao[-1] / float(restricao[entra_base]))
+                    razao = self.arredondar(restricao[-1] / float(restricao[entra_base]))
                     print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'a razao de', self.arrendondar(restricao[-1]), '/',\
-                    self.arrendondar(restricao[entra_base]),'=',razao
+                    'a razao de', self.arredondar(restricao[-1]), '/',\
+                    self.arredondar(restricao[entra_base]),'=',razao
 
                     # Elimina numeros negativos da escolha do pivo
                     if razao < 0:
@@ -338,7 +351,7 @@ class Simplex:
                 else:
                     print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
                     'o numero eh nulo, negativo ou indeterminado:',\
-                    self.arrendondar(restricao[-1]), '/', self.arrendondar(restricao[entra_base])
+                    self.arredondar(restricao[-1]), '/', self.arredondar(restricao[entra_base])
             if menor == float('Infinity'):
                 print '\nproblema eh inviavel'
             else:
@@ -383,7 +396,7 @@ class Simplex:
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh:', self.arrendondar(pivo), \
+            print 'O pivo dessa interacao eh:', self.arredondar(pivo), \
             '[linha=' + `sai_base + 1` + ', coluna=' + `entra_base` + ']\n'
 
             print 'a)Dividindo a coluna pivo'
@@ -584,11 +597,11 @@ def testes():
     x1 - x2      = -1
     x1,x2 >= 0
     """
-    # tabela_duas_fases = Simplex(Tipo.MAX, [6, -1])
-    # tabela_duas_fases.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
-    # tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
-    # tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
-    # tabela_duas_fases.resolver()
+    tabela_duas_fases = Simplex(Tipo.MAX, [6, -1])
+    tabela_duas_fases.adicionar_restricao(Sinal.MENOR_IGUAL, [4, 1], 21)
+    tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
+    tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
+    tabela_duas_fases.resolver()
 if __name__ == '__main__':
 
     numero_testes = 1
