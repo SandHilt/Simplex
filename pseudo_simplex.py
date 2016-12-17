@@ -589,17 +589,6 @@ def testes():
     # tabela_duas_fases.adicionar_restricao(Sinal.MAIOR_IGUAL, [2, 3], 13)
     # tabela_duas_fases.adicionar_restricao(Sinal.IGUAL, [1, -1], -1)
     # tabela_duas_fases.resolver()
-
-
-    # Adicinado outro problema
-    tab = Simplex(Tipo.MIN, [1, 1])
-    tab.adicionar_restricao(Sinal.MAIOR_IGUAL, [10, 20], 161)
-    tab.adicionar_restricao(Sinal.MAIOR_IGUAL, [10, 0], 41)
-    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [1, 0], 10)
-    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [0, 1], 10)
-    tab.adicionar_restricao(Sinal.MENOR_IGUAL, [-1, 1], 2)
-    tab.resolver(dualidade=False)
-
 if __name__ == '__main__':
 
     numero_testes = 1
