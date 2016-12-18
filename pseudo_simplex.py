@@ -59,15 +59,20 @@ class Simplex:
 
         self.__dual = [self.obj]
 
-        self.__ordem_variaveis = []
+        self.__ordem_variaveis = {}
 
     def arredondar(self, valor):
+        print('Olha o valor' + str(valor))
+
         # Se for passado um objeto interavel, como uma lista
-        if hasattr(valor, '__iter__') == True:
+        if hasattr(valor, '__iter__') is True:
             frac = lambda x: str(Fraction(x).limit_denominator(10**self.__DIGITOS_SIGNIFICATIVOS))
 
             for idx in range(len(valor)):
-                valor[idx] = map(frac, valor[idx])
+                res = valor[idx]
+
+                if hasattr(res, '__iter__') is True:
+                    valor[idx] = map(frac, res)
 
         # Se for passado apenas um valor
         else:
@@ -83,16 +88,16 @@ class Simplex:
 
     # Mudando para a forma padrao
     def __forma_padrao(self):
-        print '\na)Mudando a funcao objetivo, se necessario'
+        print('\na)Mudando a funcao objetivo, se necessario')
         # Transforma a funcao MAX para MIN
-        if(self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX):
+        if self.obj[self.__TIPO_RESTRICAO] == Tipo.MAX:
             # numpy.dot converte para ndarray, entao
             # tolist() volta obj a ser um array
             self.obj = np.dot(self.obj, -1).tolist()
             self.obj = self.obj
             self.obj[self.__TIPO_RESTRICAO] = Tipo.MIN
         else:
-            print '\nNao sera necessario mudar a funcao objetivo\n'
+            print('\nNao sera necessario mudar a funcao objetivo\n')
 
         self.mostrar_situacao()
 
@@ -102,7 +107,7 @@ class Simplex:
         # nao esta concatenado com rhs (valores)
         self.__numero_variavel = len(self.obj) - 2
 
-        print 'b)Vamos criar um base inicial:\n'
+        print('b)Vamos criar um base inicial:\n')
 
         # Transforma as desiguadades em igualdades
         for idx in range(len(self.rows)):
@@ -110,8 +115,7 @@ class Simplex:
 
             # Caso tenha numero negativo do lado direito
             if self.rows[idx][-1] < 0:
-                print 'Precisamos multiplicar por -1 a restricao', idx+1,'\n',\
-                'pois nao pode haver resultado negativo do lado direito.'
+                print('Precisamos multiplicar por -1 a restricao', str(idx+1) + '.')
                 self.rows[idx] = np.dot(self.rows[idx], -1).tolist()
 
             sinal = self.rows[idx][self.__TIPO_RESTRICAO]
@@ -119,26 +123,26 @@ class Simplex:
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
             if sinal == Sinal.IGUAL:
-                print 'Adicioando na restricao', idx+1, 'a variavel',\
-                'x' +  `self.__numero_variavel`,\
-                'como variavel artificial.'
+                print('Adicioando na restricao', idx+1, 'a variavel',\
+                'x' +  str(self.__numero_variavel),\
+                'como variavel artificial.')
 
                 self.__art += [self.__numero_variavel]
-                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
+                print('Colocando', 'x' + str(self.__numero_variavel), 'na base.\n')
                 self.base.append(self.__numero_variavel)
                 self.obj[-1:-1] = [0]
 
                 # Adicionando zero as restricoes
                 for row in self.rows:
-                        row[-1:-1] = [0]
+                    row[-1:-1] = [0]
 
                 # Adicionando coeficiente a restricao
                 self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
             elif sinal == Sinal.MENOR_IGUAL:
-                print 'Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  `self.__numero_variavel`,\
-                'como variavel de folga.'
+                print('Adicionando na restricao', idx+1, 'a variavel',\
+                'x' +  str(self.__numero_variavel),\
+                'como variavel de folga.')
 
                 self.__folga += [self.__numero_variavel]
                 self.obj[-1:-1] = [0]
@@ -151,26 +155,26 @@ class Simplex:
                 self.rows[idx][-2] = 1
 
                 # Colocando esse numero na base
-                print 'Colocando', 'x' + `self.__numero_variavel`, 'na base.\n'
+                print('Colocando', 'x' + str(self.__numero_variavel), 'na base.\n')
                 self.base.append(self.__numero_variavel)
 
                 self.rows[idx][self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                print 'Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  `self.__numero_variavel`,\
-                'como variavel de folga.'
+                print('Adicionando na restricao', idx+1, 'a variavel',\
+                'x' +  str(self.__numero_variavel),\
+                'como variavel de folga.')
 
-                print 'Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  `self.__numero_variavel + 1`,\
-                'como variavel artificial.'
+                print('Adicionando na restricao', idx+1, 'a variavel',\
+                'x' +  str(self.__numero_variavel + 1),\
+                'como variavel artificial.')
 
                 self.__folga += [self.__numero_variavel]
                 self.__art += [self.__numero_variavel + 1]
 
                 # Adicionando a variavel artificial a base
-                print 'Colocando', 'x' + `self.__numero_variavel + 1`, 'na base.\n'
+                print('Colocando', 'x' + str(self.__numero_variavel + 1), 'na base.\n')
                 self.base.append(self.__numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
@@ -189,11 +193,11 @@ class Simplex:
 
     # saida normal sem nenhum modulo adicional
     def saida_1(self, orientacao_problema, tipo, obj):
-        print '\n', orientacao_problema, tipo, '\t', self.arredondar(obj[0][1:])
+        print('\n', orientacao_problema, tipo, '\t', self.arredondar(obj[0][1:]))
         for i in range(len(obj)-1):
-            print '\t', self.arredondar(obj[i][1:])
+            print('\t', self.arredondar(obj[i][1:]))
         for row in self.rows:
-            print '\t', self.arredondar(row[1:])
+            print('\t', self.arredondar(row[1:]))
 
     # Tabela adicional que mostra a situacao dos sinais
     def saida_2_desigualdades(self, obj):
@@ -209,11 +213,11 @@ class Simplex:
                 pretty_sinal.append('<=')
 
         cabeca = ['Z'] + ['Z_0' for a in range(len(obj)-1)] + \
-        ['R' + `a` for a in range(1, len(pretty_sinal))]
+        ['R' + str(a) for a in range(1, len(pretty_sinal))]
 
-        pretty_sinal = np.reshape(pretty_sinal, (1,-1))
+        pretty_sinal = np.reshape(pretty_sinal, (1, -1))
 
-        print 'Sinais:\n', tb(pretty_sinal, tablefmt='psql',headers=cabeca), '\n'
+        print('Sinais:\n' + tb(pretty_sinal, tablefmt='psql', headers=cabeca) + '\n')
 
     # saida com o tabulate, um modulo para a saida ficar legivel no terminal
     def saida_2(self, orientacao_problema, tipo, obj):
@@ -231,25 +235,25 @@ class Simplex:
             if self.__numero_variavel > len(self.__ordem_variaveis):
                 self.__ordem_variaveis = {q:q+1 for q in range(self.__numero_variavel)}
 
-            pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
+            pretty_order = ['x' + str(a) for a in self.__ordem_variaveis.values()]
         else:
             tamanho_obj = len(obj[0][1:-1])
             self.__ordem_variaveis = {x: x+1 for x in range(tamanho_obj)}
-            pretty_order = ['x' + `a` for a in self.__ordem_variaveis.viewvalues()]
+            pretty_order = ['x' + str(a) for a in self.__ordem_variaveis.values()]
 
 
         # orientacao + tipo + tabela + formato da tabela + headers
-        print '\n', orientacao_problema, tipo,'\n',\
+        print('\n' + str(orientacao_problema) + ' ' + str(tipo) + '\n' +\
         tb(self.arredondar(pretty_obj + pretty_row),\
         tablefmt='psql',\
-        headers=pretty_order+['rhs']),'\n'
+        headers=pretty_order+['rhs']) + '\n')
 
         self.saida_2_desigualdades(obj)
 
     # Mostra a situacao atual da matriz
-    def mostrar_situacao(self, pack=[], somente_funcao_objetivo_original=True):
+    def mostrar_situacao(self, pack=[], funcao_objetivo_original=True):
 
-        if somente_funcao_objetivo_original == True:
+        if funcao_objetivo_original is True:
             pack = [self.obj]
         else:
             pack = [pack.tolist()] + [self.obj]
@@ -262,7 +266,7 @@ class Simplex:
         elif tipo_otimizacao == Tipo.MAX:
             tipo = 'max'
         else:
-            print 'Linha objetivo', self.obj
+            print('Linha objetivo ' + str(self.obj))
             raise ValueError('Erro no tipo da linha objetivo.')
 
         orientacao = ''
@@ -273,10 +277,10 @@ class Simplex:
         elif orientacao_problema == Problema.DUAL:
             orientacao = '(D)'
         else:
-            print 'Numero da orientacao problema:', self.orientacao_problema
+            print('Numero da orientacao problema: ' + str(self.orientacao_problema))
             raise ValueError('Erro na orientacao do problema.')
 
-        if saida_2 == False:
+        if saida_2 is False:
             self.saida_1(orientacao, tipo, pack)
         else:
             self.saida_2(orientacao, tipo, pack)
@@ -284,7 +288,7 @@ class Simplex:
     # Procura pelo pivo
     def __pivo(self, obj, base=False):
         # Mostrando a base atual
-        print '\nBase atual', self.base
+        print('\nBase atual', self.base)
 
         # Variavel flag
         menor = float('Infinity')
@@ -298,17 +302,20 @@ class Simplex:
         sai_base = -1
 
         # Caso eu tenha repassado uma base especial
-        if base == False:
+        if base is False:
             # Encontra o indice da coluna com o valor mais negativo
             # na funcao objetivo  para saber quem entra na base
-            try:
-                entra_base = objetivo[1:-1].index(min([a for a in objetivo[1:-1] if a<0])) + 1
-                print '\nNa funcao objetivo,\nesse eh o menor numero negativo:',\
-                self.arredondar(obj[entra_base]),'[coluna=' + `entra_base` + ']'
+            vitima = [a for a in objetivo[1:-1] if a < 0]
+
+            if len(vitima) > 0:
+                entra_base = objetivo[1:-1].index(min(vitima)) + 1
+                print('\nNa funcao objetivo,\nesse eh o menor numero negativo: ' + \
+                str(self.arredondar(obj[entra_base])) + ' [coluna=' + str(entra_base) + ']')
             # Caso nao haja ninguem para entrar na base,
             # entao estamos na solucao otima
-            except(ValueError):
-                print 'ja esta na solucao otima'
+            else:
+                print('ja esta na solucao otima')
+
         # Caso eu precise eliminar as variaveis artificiais da base
         else:
             # pegando o menor o indice das variaveis artificiais
@@ -318,19 +325,19 @@ class Simplex:
             idx = self.base.index(sai_base)
 
             # Real indice no dicionario ou seja, real coluna no pivo no dicionario
-            idx_aux = {a:b for a,b in self.__ordem_variaveis.items() if b == sai_base}
+            idx_aux = {a:b for a, b in self.__ordem_variaveis.items() if b == sai_base}
             idx_aux = [a for a in idx_aux][0]
 
             # Teste para ver se a variavel artificial funciona
             if self.rows[idx][idx_aux] == 0:
-                possiveis_entradas = {a:b for a,b in self.__ordem_variaveis.items()\
+                possiveis_entradas = {a:b for a, b in self.__ordem_variaveis.items()\
                 for c in self.__art if b is not c}
                 possiveis_entradas = min(possiveis_entradas.values())
                 entra_base = possiveis_entradas
 
 
         if entra_base != -1:
-            print '\nEsse que entra: x' + `entra_base`, '\n'
+            print('\nEsse que entra: x' + str(entra_base), '\n')
             # Vamos procurar quem sai da base
             for index, restricao in enumerate(self.rows):
                 # Exclui divisoes por zero
@@ -338,9 +345,10 @@ class Simplex:
                     # Divisao entre o resultado da restricao
                     # e a vitima para ser o pivo
                     razao = self.arredondar(restricao[-1] / float(restricao[entra_base]))
-                    print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'a razao de', self.arredondar(restricao[-1]), '/',\
-                    self.arredondar(restricao[entra_base]),'=',razao
+                    print('Na restricao ' + str(index+1) + ', com base x' + \
+                    str(self.base[index]) + ', a razao de ' + \
+                    str(self.arredondar(restricao[-1])) + '/' + \
+                    str(self.arredondar(restricao[entra_base])) + ' = ' + str(razao))
 
                     # Elimina numeros negativos da escolha do pivo
                     if razao < 0:
@@ -349,30 +357,31 @@ class Simplex:
                         menor = razao
                         sai_base = index
                 else:
-                    print 'Na restricao', `index+1` + ', com base x' + `self.base[index]` + ',',\
-                    'o numero eh nulo, negativo ou indeterminado:',\
-                    self.arredondar(restricao[-1]), '/', self.arredondar(restricao[entra_base])
+                    print('Na restricao ' + str(index+1) + ', com base x' + \
+                    str(self.base[index]) + ', o numero eh nulo, negativo ou indeterminado: ' + \
+                    str(self.arredondar(restricao[-1])) + '/' + \
+                    str(self.arredondar(restricao[entra_base])))
             if menor == float('Infinity'):
-                print '\nproblema eh inviavel'
+                print('\nproblema eh inviavel')
             else:
-                print '\nEsse que sai: x' + `self.base[sai_base]` + '\n'
+                print('\nEsse que sai: x' + str(self.base[sai_base]) + '\n')
 
         return entra_base, sai_base
 
     # Aqui vai procurar o pivo e fazer os escalonamentos necessarios
     def __escalonamento(self, obj=[], base=False):
-        print '\n4)Procurando o pivo'
-        somente_funcao_objetivo_original = True
+        print('\n4)Procurando o pivo')
+        funcao_objetivo_original = True
 
         if len(obj) in (0, 1):
             if len(obj) == 1:
-                somente_funcao_objetivo_original = False
+                funcao_objetivo_original = False
             obj += [self.obj]
         else:
-            print '\nValor de obj', obj
+            print('\nValor de obj', obj)
             raise ValueError('Erro na passagem do parametro obj')
 
-        criterio_parada = len([a for a in obj[0][1:-1] if a<0]) or\
+        criterio_parada = len([a for a in obj[0][1:-1] if a < 0]) or\
         len([x for x in self.base for y in self.__art if x == y])
 
         # Alterando array para ndarray para fazer com que
@@ -384,30 +393,30 @@ class Simplex:
 
         contador = 1
         while criterio_parada != 0:
-            print '\n--------\n', `contador` + 'a', 'Interacao com pivo'
+            print('\n--------\n' + str(contador) + 'a Interacao com pivo')
             contador += 1
 
             entra_base, sai_base = self.__pivo(obj[0], base)
 
             # Significa que nao foi possivel achar um novo pivo
-            if(entra_base == -1 or sai_base == -1):
+            if entra_base == -1 or sai_base == -1:
                 break
 
             # O pivo esta aqui
             pivo = float(self.rows[sai_base][entra_base])
 
-            print 'O pivo dessa interacao eh:', self.arredondar(pivo), \
-            '[linha=' + `sai_base + 1` + ', coluna=' + `entra_base` + ']\n'
+            print('O pivo dessa interacao eh: ' + str(self.arredondar(pivo)) + \
+            ' [linha=' + str(sai_base + 1) + ', coluna=' + str(entra_base) + ']\n')
 
-            print 'a)Dividindo a coluna pivo'
+            print('a)Dividindo a coluna pivo')
             # Agora vamos dividir a linha toda pelo proprio pivo
             self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
 
-            self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
+            self.mostrar_situacao(obj[0], funcao_objetivo_original)
 
             # Agora precisamos zerar a coluna do pivo nas restricoes
             # e depois na funcao objetivo
-            print '\nb)Vamos zerar a coluna do pivo\n'
+            print('\nb)Vamos zerar a coluna do pivo\n')
 
             linha_pivo = self.rows[sai_base]
 
@@ -415,10 +424,10 @@ class Simplex:
                 restricao = self.rows[i]
                 if i != sai_base:
                     self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
-                    print '\nSomando a restricao', i + 1
-                    self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
+                    print('\nSomando a restricao ' + str(i + 1))
+                    self.mostrar_situacao(obj[0], funcao_objetivo_original)
 
-            print '\nSomando a linha do pivo a funcao objetivo'
+            print('\nSomando a linha do pivo a funcao objetivo')
             # Adicionando a linha pivo na funcao objetivo
             linha_pivo = linha_pivo[1:]
 
@@ -430,7 +439,7 @@ class Simplex:
                 # pois na funcao objetivo ela soh esta como copia por valor
                 if i == len(obj)-1:
                     self.obj = obj[i]
-            self.mostrar_situacao(obj[0], somente_funcao_objetivo_original)
+            self.mostrar_situacao(obj[0], funcao_objetivo_original)
 
             # Trocando a base
             self.base[sai_base] = entra_base
@@ -443,15 +452,15 @@ class Simplex:
         # Preciso fazer a primeira fase das duas
         # ja que a segunda fase eh o mesmo processo
         if len(self.__art) > 0:
-            print 'O problema eh de duas fases.'
+            print('O problema eh de duas fases.')
 
             self.__z_0 = np.zeros(2 + self.__numero_variavel, dtype=float)
             self.__z_0[self.__TIPO_RESTRICAO] = Tipo.MIN
-            print 'Mostrando nova funcao objetivo:'
+            print('Mostrando nova funcao objetivo:')
             for art in self.__art:
                 self.__z_0[art] = 1
 
-            self.mostrar_situacao(self.__z_0, somente_funcao_objetivo_original=False)
+            self.mostrar_situacao(self.__z_0, funcao_objetivo_original=False)
 
             # Vamos procurar onde esta as restricoes
             # de cada variavel artificial
@@ -462,23 +471,24 @@ class Simplex:
                         aux = np.dot(aux, -1).tolist()
                         self.__z_0 += aux
 
-            print 'Alterando os valores em suas respectivas restricoes temos:'
+            print('Alterando os valores em suas respectivas restricoes temos:')
             self.mostrar_situacao(self.__z_0, False)
-            print 'Agora vamos trabalhar com ela...'
+            print('Agora vamos trabalhar com ela...')
             self.__escalonamento([self.__z_0])
 
             # Lista de variaveis artificias como base
             variaveis_art_basicas = [a for a in self.base for b in self.__art if a == b]
 
-            print 'Chegamos em uma solucao otima\npara a primeira fase com base:', self.base, '\n'
+            print('Chegamos em uma solucao otima\npara a primeira fase com base: ' + \
+            str(self.base) + '\n')
 
             # Caso haja, precisamos tentar elimina-las usando elas como sai_base
             if len(variaveis_art_basicas) != 0:
-                print 'Temos variaveis artificiais como base, precisamos elimina-las.'
+                print('Temos variaveis artificiais como base, precisamos elimina-las.')
                 self.__escalonamento([self.__z_0], base=True)
             else:
-                print 'Nao ha variaveis artificiais como base, vamos continuar.\n'
-                print 'E vamos eliminar as variaveis artificiais.', self.__art
+                print('Nao ha variaveis artificiais como base, vamos continuar.\n'+\
+                'E vamos eliminar as variaveis artificiais. ' + str(self.__art))
 
                 # Removendo as variaveis artificiais
                 self.__ordem_variaveis = {chave: valor\
@@ -492,39 +502,37 @@ class Simplex:
                 self.__numero_variavel -= len(self.__art)
                 self.__art = []
 
-            print 'Agora vamos para a segunda fase.'
+            print('Agora vamos para a segunda fase.')
             self.mostrar_situacao()
             self.__escalonamento()
         else:
-            print '\nO problema eh de uma fase.'
+            print('\nO problema eh de uma fase.')
             self.__escalonamento()
 
 
     def resolver(self, dualidade=True):
-        print '\n1)Antes de comecar'
+        print('\n1)Antes de comecar')
         self.mostrar_situacao()
 
-        print '\n2)Mudando as restricoes para a forma padrao', '\n'
+        print('\n2)Mudando as restricoes para a forma padrao\n')
         self.__forma_padrao()
         self.mostrar_situacao()
 
-        print '\n3)Passo a passo para o metodo de duas fases\n'
+        print('\n3)Passo a passo para o metodo de duas fases\n')
         self.__teste_fases()
 
-        print '\n5)Resolucao'
-        print '\nZ', '=', self.obj[-1]
-        x = []
-        for i, res in enumerate(self.rows):
-            x.append([self.base[i], res[-1]])
+        print('\n5)Resolucao')
+        print('\nZ = ' + str(self.obj[-1]))
+        x = [[self.base[a], b[-1]] for a, b in enumerate(self.rows)]
         x.sort()
         for res in x:
-            print 'x' + `res[0]`, '=', res[1]
+            print('x' + str(res[0]) + ' = ' + str(res[1]))
 
         if dualidade == True:
-            print '\n6)Problema Dual:'
+            print('\n6)Problema Dual:')
             self.__problema_dual()
         else:
-            print '\n---- FIM ----\n'
+            print('\n---- FIM ----\n')
 
     def __problema_dual(self):
         # Dicionario para ajudar no texto
@@ -534,37 +542,37 @@ class Simplex:
         self.orientacao_problema == Problema.DUAL:
             orientacao = text_orientacao[self.orientacao_problema]
         else:
-            print 'Numero da orientacao', self.orientacao_problema
+            print('Numero da orientacao', self.orientacao_problema)
             ValueError('Ha um problema na orientacao do problema.')
 
-        print '\nEste eh o problema', orientacao, 'inicial:\n\n',\
+        print('\nEste eh o problema', orientacao, 'inicial:\n\n',\
         tb(self.__dual, tablefmt='psql',\
-        headers=['tp'] + ['x' + `a + 1` for a in range(len(self.__dual[0])-2)] + ['rhs'])
+        headers=['tp'] + ['x' + str(a + 1) for a in range(len(self.__dual[0])-2)] + ['rhs']))
 
-        print '\nTranspondo as restricoes:'
+        print('\nTranspondo as restricoes:')
         transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
-        print  '\n', tb(transposta, tablefmt='psql',\
-        headers=['x' + `a + 1` for a in range(len(transposta[0]))] + ['rhs'])
+        print('\n', tb(transposta, tablefmt='psql',\
+        headers=['x' + str(a + 1) for a in range(len(transposta[0]))] + ['rhs']))
 
         # Funcao objetivo do novo problema
         dual_obj = [-self.__dual[0][0]] + transposta[-1]
 
         orientacao = text_orientacao[-self.orientacao_problema]
 
-        print '\nFuncao objetivo', orientacao, ':', dual_obj
+        print('\nFuncao objetivo ' + str(orientacao) + ': ' + str(dual_obj))
 
         # Esses que eram os coeficientes do primal
         # vao fazer parte do rhs do dual
         z_to_rhs = self.__dual[0][1:-1]
-        print 'Resultados do problema', orientacao,':', z_to_rhs
+        print('Resultados do problema ' + str(orientacao) + ': ' + str(z_to_rhs))
         # Removendo a ultima linha
         # que vai ser a nova linha objetivo
         transposta = np.delete(transposta, -1, axis=0).tolist()
         for i in range(len(transposta)):
             transposta[i] = [Sinal.MAIOR_IGUAL] + transposta[i] + [z_to_rhs[i]]
         transposta.insert(0, dual_obj)
-        print tb(transposta, tablefmt='psql',\
-        headers=['tp'] + ['x' + `a` for a in range(len(transposta[-1]))] + ['rhs'])
+        print(tb(transposta, tablefmt='psql',\
+        headers=['tp'] + ['x' + str(a) for a in range(len(transposta[-1]))] + ['rhs']))
 
         # Agora vamos resolver o Problema
         problema_dual = Simplex(transposta[0][0], transposta[0][1:], Problema.DUAL)
@@ -604,6 +612,6 @@ def testes():
     tabela_duas_fases.resolver()
 if __name__ == '__main__':
 
-    numero_testes = 1
-    tempo = round(timeit.timeit(testes, number=numero_testes), 2)
-    print '\nTempo:', tempo ,'s em', numero_testes, 'teste(s).'
+    num_testes = 1
+    tempo = round(timeit.timeit(testes, number=num_testes), 2)
+    print('\nTempo: ' + str(tempo) + 's em ' + str(num_testes) + ' teste(s).')
