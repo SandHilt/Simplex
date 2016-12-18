@@ -62,8 +62,6 @@ class Simplex:
         self.__ordem_variaveis = {}
 
     def arredondar(self, valor):
-        print('Olha o valor' + str(valor))
-
         # Se for passado um objeto interavel, como uma lista
         if hasattr(valor, '__iter__') is True:
             frac = lambda x: str(Fraction(x).limit_denominator(10**self.__DIGITOS_SIGNIFICATIVOS))
@@ -115,7 +113,7 @@ class Simplex:
 
             # Caso tenha numero negativo do lado direito
             if self.rows[idx][-1] < 0:
-                print('Precisamos multiplicar por -1 a restricao', str(idx+1) + '.')
+                print('Precisamos multiplicar por -1 a restricao ' + str(idx+1) + '.')
                 self.rows[idx] = np.dot(self.rows[idx], -1).tolist()
 
             sinal = self.rows[idx][self.__TIPO_RESTRICAO]
@@ -123,12 +121,11 @@ class Simplex:
             # No caso se for igual, entao aplicamos as variaveis
             # artificiais
             if sinal == Sinal.IGUAL:
-                print('Adicioando na restricao', idx+1, 'a variavel',\
-                'x' +  str(self.__numero_variavel),\
-                'como variavel artificial.')
+                print('Adicioando na restricao ' + str(idx+1) + ' a variavel' + \
+                'x' +  str(self.__numero_variavel) + ' como variavel artificial.')
 
                 self.__art += [self.__numero_variavel]
-                print('Colocando', 'x' + str(self.__numero_variavel), 'na base.\n')
+                print('Colocando ' + 'x' + str(self.__numero_variavel) + ' na base.\n')
                 self.base.append(self.__numero_variavel)
                 self.obj[-1:-1] = [0]
 
@@ -140,9 +137,8 @@ class Simplex:
                 self.rows[idx][-2] = 1
             # No caso de for menor ou igual, ou seja, uma fase
             elif sinal == Sinal.MENOR_IGUAL:
-                print('Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  str(self.__numero_variavel),\
-                'como variavel de folga.')
+                print('Adicionando na restricao ' + str(idx+1) + ' a variavel' + \
+                'x' +  str(self.__numero_variavel) + ' como variavel de folga.')
 
                 self.__folga += [self.__numero_variavel]
                 self.obj[-1:-1] = [0]
@@ -155,26 +151,24 @@ class Simplex:
                 self.rows[idx][-2] = 1
 
                 # Colocando esse numero na base
-                print('Colocando', 'x' + str(self.__numero_variavel), 'na base.\n')
+                print('Colocando x' + str(self.__numero_variavel) + ' na base.\n')
                 self.base.append(self.__numero_variavel)
 
                 self.rows[idx][self.__TIPO_RESTRICAO] = Sinal.IGUAL
 
             # No caso de for maior ou igual, ou seja, de duas fases
             elif sinal == Sinal.MAIOR_IGUAL:
-                print('Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  str(self.__numero_variavel),\
-                'como variavel de folga.')
+                print('Adicionando na restricao ' + str(idx+1) + ' a variavel' + \
+                'x' +  str(self.__numero_variavel) + ' como variavel de folga.')
 
-                print('Adicionando na restricao', idx+1, 'a variavel',\
-                'x' +  str(self.__numero_variavel + 1),\
-                'como variavel artificial.')
+                print('Adicionando na restricao ' + str(idx+1) + ' a variavel' + \
+                'x' +  str(self.__numero_variavel + 1) + ' como variavel artificial.')
 
                 self.__folga += [self.__numero_variavel]
                 self.__art += [self.__numero_variavel + 1]
 
                 # Adicionando a variavel artificial a base
-                print('Colocando', 'x' + str(self.__numero_variavel + 1), 'na base.\n')
+                print('Colocando x' + str(self.__numero_variavel + 1) + ' na base.\n')
                 self.base.append(self.__numero_variavel + 1)
 
                 # Como a cada interacao ele ja incrementa
@@ -288,7 +282,7 @@ class Simplex:
     # Procura pelo pivo
     def __pivo(self, obj, base=False):
         # Mostrando a base atual
-        print('\nBase atual', self.base)
+        print('\nBase atual ' + str(self.base))
 
         # Variavel flag
         menor = float('Infinity')
@@ -337,7 +331,7 @@ class Simplex:
 
 
         if entra_base != -1:
-            print('\nEsse que entra: x' + str(entra_base), '\n')
+            print('\nEsse que entra: x' + str(entra_base) + '\n')
             # Vamos procurar quem sai da base
             for index, restricao in enumerate(self.rows):
                 # Exclui divisoes por zero
@@ -444,7 +438,7 @@ class Simplex:
             # Trocando a base
             self.base[sai_base] = entra_base
 
-            criterio_parada = len([a for a in obj[0][1:-1] if a<0])
+            criterio_parada = len([a for a in obj[0][1:-1] if a < 0])
 
     # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
@@ -528,7 +522,7 @@ class Simplex:
         for res in x:
             print('x' + str(res[0]) + ' = ' + str(res[1]))
 
-        if dualidade == True:
+        if dualidade is True:
             print('\n6)Problema Dual:')
             self.__problema_dual()
         else:
@@ -538,20 +532,19 @@ class Simplex:
         # Dicionario para ajudar no texto
         text_orientacao = {Problema.PRIMAL: 'primal', Problema.DUAL: 'dual'}
 
-        if self.orientacao_problema == Problema.PRIMAL or\
-        self.orientacao_problema == Problema.DUAL:
+        if self.orientacao_problema in text_orientacao.keys():
             orientacao = text_orientacao[self.orientacao_problema]
         else:
-            print('Numero da orientacao', self.orientacao_problema)
+            print('Numero da orientacao ' + str(self.orientacao_problema))
             ValueError('Ha um problema na orientacao do problema.')
 
-        print('\nEste eh o problema', orientacao, 'inicial:\n\n',\
+        print('\nEste eh o problema ' + orientacao + ' inicial:\n\n' + \
         tb(self.__dual, tablefmt='psql',\
         headers=['tp'] + ['x' + str(a + 1) for a in range(len(self.__dual[0])-2)] + ['rhs']))
 
         print('\nTranspondo as restricoes:')
         transposta = np.transpose([a[1:] for a in self.__dual[1:]]).tolist()
-        print('\n', tb(transposta, tablefmt='psql',\
+        print('\n' + tb(transposta, tablefmt='psql',\
         headers=['x' + str(a + 1) for a in range(len(transposta[0]))] + ['rhs']))
 
         # Funcao objetivo do novo problema
@@ -568,8 +561,11 @@ class Simplex:
         # Removendo a ultima linha
         # que vai ser a nova linha objetivo
         transposta = np.delete(transposta, -1, axis=0).tolist()
+        # for i, tr in enumerate(transposta):
+        print(transposta)
         for i in range(len(transposta)):
             transposta[i] = [Sinal.MAIOR_IGUAL] + transposta[i] + [z_to_rhs[i]]
+        print(transposta)
         transposta.insert(0, dual_obj)
         print(tb(transposta, tablefmt='psql',\
         headers=['tp'] + ['x' + str(a) for a in range(len(transposta[-1]))] + ['rhs']))
