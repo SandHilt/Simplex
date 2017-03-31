@@ -71,6 +71,8 @@ class Simplex:
 
                 if hasattr(res, '__iter__') is True:
                     valor[idx] = map(frac, res)
+                else:
+                    raise TypeError('So eh aceito vetor de 2 dimensoes ou numero.')
 
         # Se for passado apenas um valor
         else:
@@ -194,9 +196,9 @@ class Simplex:
             print('\t', self.arredondar(row[1:]))
 
     # Tabela adicional que mostra a situacao dos sinais
-    def saida_2_desigualdades(self, obj):
+    def saida_2_desigualdades(self, obj, rows):
         pretty_sinal = ['-' for a in range(len(obj))]
-        for row in self.rows:
+        for row in rows:
             analise = row[0]
 
             if analise == Sinal.IGUAL:
@@ -242,7 +244,7 @@ class Simplex:
         tablefmt='psql',\
         headers=pretty_order+['rhs']) + '\n')
 
-        self.saida_2_desigualdades(obj)
+        self.saida_2_desigualdades(obj, self.rows)
 
     # Mostra a situacao atual da matriz
     def mostrar_situacao(self, pack=[], funcao_objetivo_original=True):
@@ -378,69 +380,74 @@ class Simplex:
         criterio_parada = len([a for a in obj[0][1:-1] if a < 0]) or\
         len([x for x in self.base for y in self.__art if x == y])
 
-        # Alterando array para ndarray para fazer com que
-        # cada linha seja do tipo float
-        for i in range(len(obj)):
-            obj[i] = np.array(obj[i], dtype=float)
-        for restricao in self.rows:
-            restricao = np.array(restricao, dtype=float)
 
-        contador = 1
-        while criterio_parada != 0:
-            print('\n--------\n' + str(contador) + 'a Interacao com pivo')
-            contador += 1
-
-            entra_base, sai_base = self.__pivo(obj[0], base)
-
-            # Significa que nao foi possivel achar um novo pivo
-            if entra_base == -1 or sai_base == -1:
-                break
-
-            # O pivo esta aqui
-            pivo = float(self.rows[sai_base][entra_base])
-
-            print('O pivo dessa interacao eh: ' + str(self.arredondar(pivo)) + \
-            ' [linha=' + str(sai_base + 1) + ', coluna=' + str(entra_base) + ']\n')
-
-            print('a)Dividindo a coluna pivo')
-            # Agora vamos dividir a linha toda pelo proprio pivo
-            self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
-
-            self.mostrar_situacao(obj[0], funcao_objetivo_original)
-
-            # Agora precisamos zerar a coluna do pivo nas restricoes
-            # e depois na funcao objetivo
-            print('\nb)Vamos zerar a coluna do pivo\n')
-
-            linha_pivo = self.rows[sai_base]
-
-            for i in range(len(self.rows)):
-                restricao = self.rows[i]
-                if i != sai_base:
-                    self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
-                    print('\nSomando a restricao ' + str(i + 1))
-                    self.mostrar_situacao(obj[0], funcao_objetivo_original)
-
-            print('\nSomando a linha do pivo a funcao objetivo')
-            # Adicionando a linha pivo na funcao objetivo
-            linha_pivo = linha_pivo[1:]
-
-            # print 'Mostrando a soma da(s) fo(s)', obj
+        if criterio_parada != 0:
+            # Alterando array para ndarray para fazer com que
+            # cada linha seja do tipo float
             for i in range(len(obj)):
-                obj[i][1:] += np.dot(linha_pivo, -obj[i][entra_base])
-                # Como eu sempre coloco a funcao objetivo original na ultima
-                # posicao, tempos que atualizar direto na fonte (self.obj)
-                # pois na funcao objetivo ela soh esta como copia por valor
-                if i == len(obj)-1:
-                    self.obj = obj[i]
-            self.mostrar_situacao(obj[0], funcao_objetivo_original)
+                obj[i] = np.array(obj[i], dtype=float)
+            for restricao in self.rows:
+                restricao = np.array(restricao, dtype=float)
 
-            # Trocando a base
-            self.base[sai_base] = entra_base
+            contador = 1
+            while criterio_parada != 0:
+                print('\n--------\n' + str(contador) + 'a Interacao com pivo')
+                contador += 1
 
-            criterio_parada = len([a for a in obj[0][1:-1] if a < 0])
+                entra_base, sai_base = self.__pivo(obj[0], base)
 
-    # Descobre se o prblema eh de uma ou duas fases
+                # Significa que nao foi possivel achar um novo pivo
+                if entra_base == -1 or sai_base == -1:
+                    break
+
+                # O pivo esta aqui
+                pivo = float(self.rows[sai_base][entra_base])
+
+                print('O pivo dessa interacao eh: ' + str(self.arredondar(pivo)) + \
+                ' [linha=' + str(sai_base + 1) + ', coluna=' + str(entra_base) + ']\n')
+
+                print('a)Dividindo a coluna pivo')
+                # Agora vamos dividir a linha toda pelo proprio pivo
+                self.rows[sai_base] = np.dot(self.rows[sai_base], 1 / pivo)
+
+                self.mostrar_situacao(obj[0], funcao_objetivo_original)
+
+                # Agora precisamos zerar a coluna do pivo nas restricoes
+                # e depois na funcao objetivo
+                print('\nb)Vamos zerar a coluna do pivo\n')
+
+                linha_pivo = self.rows[sai_base]
+
+                for i in range(len(self.rows)):
+                    restricao = self.rows[i]
+                    if i != sai_base:
+                        self.rows[i] += np.dot(linha_pivo, -restricao[entra_base])
+                        print('\nSomando a restricao ' + str(i + 1))
+                        self.mostrar_situacao(obj[0], funcao_objetivo_original)
+
+                print('\nSomando a linha do pivo a funcao objetivo')
+                # Adicionando a linha pivo na funcao objetivo
+                linha_pivo = linha_pivo[1:]
+
+                # print 'Mostrando a soma da(s) fo(s)', obj
+                for i in range(len(obj)):
+                    obj[i][1:] += np.dot(linha_pivo, -obj[i][entra_base])
+                    # Como eu sempre coloco a funcao objetivo original na ultima
+                    # posicao, tempos que atualizar direto na fonte (self.obj)
+                    # pois na funcao objetivo ela soh esta como copia por valor
+                    if i == len(obj)-1:
+                        self.obj = obj[i]
+                self.mostrar_situacao(obj[0], funcao_objetivo_original)
+
+                # Trocando a base
+                self.base[sai_base] = entra_base
+
+                criterio_parada = len([a for a in obj[0][1:-1] if a < 0])
+        # Caso eu nao tenha achado candidato
+        else:
+            print('\nJa estamos na solucao otima.')
+
+        # Descobre se o prblema eh de uma ou duas fases
     def __teste_fases(self):
         # Se houver variavel artificial
         # Preciso fazer a primeira fase das duas
@@ -481,7 +488,7 @@ class Simplex:
                 print('Temos variaveis artificiais como base, precisamos elimina-las.')
                 self.__escalonamento([self.__z_0], base=True)
             else:
-                print('Nao ha variaveis artificiais como base, vamos continuar.\n'+\
+                print('Nao ha variaveis artificiais como base, vamos continuar.\n\n'+\
                 'E vamos eliminar as variaveis artificiais. ' + str(self.__art))
 
                 # Removendo as variaveis artificiais
@@ -552,7 +559,7 @@ class Simplex:
 
         orientacao = text_orientacao[-self.orientacao_problema]
 
-        print('\nFuncao objetivo ' + str(orientacao) + ': ' + str(dual_obj))
+        print(  '\nFuncao objetivo ' + str(orientacao) + ': ' + str(dual_obj))
 
         # Esses que eram os coeficientes do primal
         # vao fazer parte do rhs do dual
